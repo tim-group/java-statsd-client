@@ -36,9 +36,34 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public final class StatsDClient {
+
     private final String prefix;
     private final DatagramSocket clientSocket;
 
+    private final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+        final ThreadFactory delegate = Executors.defaultThreadFactory();
+        @Override public Thread newThread(Runnable r) {
+            Thread result = delegate.newThread(r);
+            result.setName("StatsD-" + result.getName());
+            return result;
+        }
+    });
+
+    /**
+     * Create a new StatsD client communicating with a StatsD instance on the
+     * specified host and port. All messages send via this client will have
+     * their keys prefixed with the specified string. The new client will
+     * attempt to open a connection to the StatsD server immediately upon
+     * instantiation, and may throw an exception if that a connection cannot
+     * be established.
+     * 
+     * @param prefix
+     *     the prefix to apply to keys sent via this client
+     * @param hostname
+     *     the host name of the targeted StatsD server
+     * @param port
+     *     the port of the targeted StatsD server
+     */
     public StatsDClient(String prefix, String hostname, int port) {
         this.prefix = prefix;
         
@@ -50,14 +75,64 @@ public final class StatsDClient {
         }
     }
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
-        final ThreadFactory delegate = Executors.defaultThreadFactory();
-        @Override public Thread newThread(Runnable r) {
-            Thread result = delegate.newThread(r);
-            result.setName("StatsD-" + result.getName());
-            return result;
+    /**
+     * Cleanly shut down this StatsD client. This method may throw an exception if
+     * the socket cannot be closed.
+     */
+    public void stop() {
+        try {
+            executor.shutdown();
+            executor.awaitTermination(30, TimeUnit.SECONDS);
         }
-    });
+        catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+        finally {
+            if (clientSocket != null) {
+                clientSocket.close();
+            }
+        }
+    }
+
+    /**
+     * Increments the specified counter by one.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * @param aspect
+     *     the name of the counter to increment
+     */
+    public void incrementCounter(String aspect) {
+        send(String.format("%s.%s:%d|c", prefix, aspect, 1));
+    }
+
+    /**
+     * Records the latest fixed value for the specified named gauge.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * @param aspect
+     *     the name of the gauge
+     * @param value
+     *     the new reading of the gauge
+     */
+    public void recordGaugeValue(String aspect, int value) {
+        send(String.format("%s.%s:%d|g", prefix, aspect, value));
+    }
+
+    /**
+     * Records an execution time in milliseconds for the specified named operation.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * @param aspect
+     *     the name of the timed operation
+     * @param timeInMs
+     *     the time in milliseconds
+     */
+    public void recordExecutionTime(String aspect, int timeInMs) {
+        send(String.format("%s.%s:%d|ms", prefix, aspect, timeInMs));
+    }
 
     private void send(final String message) {
         try {
@@ -72,22 +147,6 @@ public final class StatsDClient {
         }
     }
 
-    /**
-     * Cleanly shut down this StatsD client.
-     */
-    public void stop() {
-        try {
-            executor.shutdown();
-            executor.awaitTermination(30, TimeUnit.SECONDS);
-        }
-        catch (Exception e) { }
-        finally {
-            if (clientSocket != null) {
-                clientSocket.close();
-            }
-        }
-    }
-
     private void blockingSend(String message) {
         try {
             final byte[] sendData = message.getBytes();
@@ -95,36 +154,5 @@ public final class StatsDClient {
             clientSocket.send(sendPacket);
         } catch (Exception e) {
         }
-    }
-
-    /**
-     * Increments the specified counter by one.
-     * 
-     * This method is non-blocking and is guaranteed not to throw an exception.
-     * 
-     * @param aspect the name of the counter to increment
-     */
-    public void incrementCounter(String aspect) {
-        send(String.format("%s.%s:%d|c", prefix, aspect, 1));
-    }
-
-    /**
-     * Records the latest fixed value for the specified named gauge.
-     * 
-     * @param aspect the name of the gauge
-     * @param value the new reading of the gauge
-     */
-    public void recordGaugeValue(String aspect, int value) {
-        send(String.format("%s.%s:%d|g", prefix, aspect, 1));
-    }
-
-    /**
-     * Records an execution time in milliseconds for the specified named operation.
-     * 
-     * @param aspect the name of the timed operation
-     * @param timeInMs the time in milliseconds
-     */
-    public void recordExecutionTime(String aspect, int timeInMs) {
-        send(String.format("%s.%s:%d|ms", prefix, aspect, 1));
     }
 }
