@@ -26,10 +26,30 @@ public class StatsDClientTest {
     sends_counter_increment_to_statsd() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
-        client.incrementCounter("blah");
+        client.incrementCounter("myinc");
         server.waitForMessage();
         
-        assertThat(server.messagesReceived(), contains("my.prefix.blah:1|c"));
+        assertThat(server.messagesReceived(), contains("my.prefix.myinc:1|c"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_gauge_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+        
+        client.recordGaugeValue("mygauge", 423);
+        server.waitForMessage();
+        
+        assertThat(server.messagesReceived(), contains("my.prefix.mygauge:423|g"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_timer_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+        
+        client.recordExecutionTime("mytime", 123);
+        server.waitForMessage();
+        
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms"));
     }
 
     private static final class DummyStatsDServer {
