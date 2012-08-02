@@ -3,7 +3,6 @@ package com.timgroup.statsd;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
-import java.net.SocketException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -63,15 +62,17 @@ public final class StatsDClient {
      *     the host name of the targeted StatsD server
      * @param port
      *     the port of the targeted StatsD server
+     * @throws StatsDClientException
+     *     if the client could not be started
      */
-    public StatsDClient(String prefix, String hostname, int port) {
+    public StatsDClient(String prefix, String hostname, int port) throws StatsDClientException {
         this.prefix = prefix;
         
         try {
             this.clientSocket = new DatagramSocket();
             this.clientSocket.connect(new InetSocketAddress(hostname, port));
-        } catch (SocketException e) {
-            throw new IllegalStateException(e);
+        } catch (Exception e) {
+            throw new StatsDClientException("Failed to start StatsD client", e);
         }
     }
 
