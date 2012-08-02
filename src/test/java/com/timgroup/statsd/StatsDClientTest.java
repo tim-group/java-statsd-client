@@ -23,6 +23,16 @@ public class StatsDClientTest {
     }
 
     @Test(timeout=5000L) public void
+    sends_counter_value_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+        
+        client.count("mycount", 24);
+        server.waitForMessage();
+        
+        assertThat(server.messagesReceived(), contains("my.prefix.mycount:24|c"));
+    }
+
+    @Test(timeout=5000L) public void
     sends_counter_increment_to_statsd() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         

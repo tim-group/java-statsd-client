@@ -95,6 +95,20 @@ public final class StatsDClient {
     }
 
     /**
+     * Adjusts the specified counter by the specified delta.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * @param aspect
+     *     the name of the counter to increment
+     * @param delta
+     *     the amount to adjust the counter by
+     */
+    public void count(String aspect, int delta) {
+        send(String.format("%s.%s:%d|c", prefix, aspect, delta));
+    }
+
+    /**
      * Increments the specified counter by one.
      * 
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
