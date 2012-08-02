@@ -121,6 +121,13 @@ public final class StatsDClient {
     }
 
     /**
+     * Convenience method equivalent to {@link #incrementCounter(String)}. 
+     */
+    public void increment(String aspect) {
+        incrementCounter(aspect);
+    }
+
+    /**
      * Decrements the specified counter by one.
      * 
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
@@ -130,6 +137,13 @@ public final class StatsDClient {
      */
     public void decrementCounter(String aspect) {
         count(aspect, -1);
+    }
+
+    /**
+     * Convenience method equivalent to {@link #decrementCounter(String)}. 
+     */
+    public void decrement(String aspect) {
+        decrementCounter(aspect);
     }
 
     /**
@@ -147,6 +161,13 @@ public final class StatsDClient {
     }
 
     /**
+     * Convenience method equivalent to {@link #recordGaugeValue(String)}. 
+     */
+    public void gauge(String aspect, int value) {
+        recordGaugeValue(aspect, value);
+    }
+
+    /**
      * Records an execution time in milliseconds for the specified named operation.
      * 
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
@@ -158,6 +179,13 @@ public final class StatsDClient {
      */
     public void recordExecutionTime(String aspect, int timeInMs) {
         send(String.format("%s.%s:%d|ms", prefix, aspect, timeInMs));
+    }
+
+    /**
+     * Convenience method equivalent to {@link #recordExecutionTime(String)}. 
+     */
+    public void time(String aspect, int value) {
+        recordExecutionTime(aspect, value);
     }
 
     private void send(final String message) {
