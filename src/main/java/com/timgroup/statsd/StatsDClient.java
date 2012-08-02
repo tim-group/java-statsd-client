@@ -107,6 +107,18 @@ public final class StatsDClient {
     }
 
     /**
+     * Decrements the specified counter by one.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * @param aspect
+     *     the name of the counter to decrement
+     */
+    public void decrementCounter(String aspect) {
+        send(String.format("%s.%s:%d|c", prefix, aspect, -1));
+    }
+
+    /**
      * Records the latest fixed value for the specified named gauge.
      * 
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>

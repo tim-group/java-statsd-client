@@ -33,6 +33,16 @@ public class StatsDClientTest {
     }
 
     @Test(timeout=5000L) public void
+    sends_counter_decrement_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+        
+        client.decrementCounter("mydec");
+        server.waitForMessage();
+        
+        assertThat(server.messagesReceived(), contains("my.prefix.mydec:-1|c"));
+    }
+
+    @Test(timeout=5000L) public void
     sends_gauge_to_statsd() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
