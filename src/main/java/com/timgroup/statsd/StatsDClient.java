@@ -95,12 +95,12 @@ public final class StatsDClient {
     }
 
     /**
-     * Adjusts the specified counter by the specified delta.
+     * Adjusts the specified counter by a given delta.
      * 
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
      * 
      * @param aspect
-     *     the name of the counter to increment
+     *     the name of the counter to adjust
      * @param delta
      *     the amount to adjust the counter by
      */
@@ -117,7 +117,7 @@ public final class StatsDClient {
      *     the name of the counter to increment
      */
     public void incrementCounter(String aspect) {
-        send(String.format("%s.%s:%d|c", prefix, aspect, 1));
+        count(aspect, 1);
     }
 
     /**
@@ -129,7 +129,7 @@ public final class StatsDClient {
      *     the name of the counter to decrement
      */
     public void decrementCounter(String aspect) {
-        send(String.format("%s.%s:%d|c", prefix, aspect, -1));
+        count(aspect, -1);
     }
 
     /**
