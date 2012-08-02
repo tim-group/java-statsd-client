@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.contains;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,24 +23,42 @@ public class StatsDClientTest {
     }
 
     @Test(timeout=5000L) public void
-    sends_records_to_statsd() throws Exception {
-        final List<String> messagesReceived = new ArrayList<String>();
-        final DatagramSocket server = new DatagramSocket(STATSD_SERVER_PORT);
-        
-        new Thread(new Runnable() {
-            @Override public void run() {
-                try {
-                    final DatagramPacket packet = new DatagramPacket(new byte[256], 256);
-                    server.receive(packet);
-                    messagesReceived.add(new String(packet.getData()).trim());
-                    server.close();
-                } catch (Exception e) { }
-            }
-        }).start();
+    sends_counter_increment_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
         client.incrementCounter("blah");
-        while (messagesReceived.isEmpty()) { Thread.sleep(50L); }
+        server.waitForMessage();
         
-        assertThat(messagesReceived, contains("my.prefix.blah:1|c"));
+        assertThat(server.messagesReceived(), contains("my.prefix.blah:1|c"));
+    }
+
+    private static final class DummyStatsDServer {
+        private final List<String> messagesReceived = new ArrayList<String>();
+        private final DatagramSocket server;
+
+        public DummyStatsDServer(int port) throws SocketException {
+            server = new DatagramSocket(port);
+            new Thread(new Runnable() {
+                @Override public void run() {
+                    try {
+                        final DatagramPacket packet = new DatagramPacket(new byte[256], 256);
+                        server.receive(packet);
+                        messagesReceived.add(new String(packet.getData()).trim());
+                        server.close();
+                    } catch (Exception e) { }
+                }
+            }).start();
+        }
+        
+        public void waitForMessage() {
+            while (messagesReceived.isEmpty()) {
+                try {
+                    Thread.sleep(50L);
+                } catch (InterruptedException e) {}}
+        }
+        
+        public List<String> messagesReceived() {
+            return new ArrayList<String>(messagesReceived);
+        }
     }
 }
