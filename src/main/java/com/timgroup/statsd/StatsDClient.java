@@ -36,8 +36,13 @@ import java.util.concurrent.TimeUnit;
  */
 public final class StatsDClient {
 
+    private static final StatsDClientErrorHandler NO_OP_HANDLER = new StatsDClientErrorHandler() {
+        @Override public void handle(Exception e) { /* No-op */ }
+    };
+
     private final String prefix;
     private final DatagramSocket clientSocket;
+    private final StatsDClientErrorHandler handler;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
         final ThreadFactory delegate = Executors.defaultThreadFactory();
@@ -54,7 +59,9 @@ public final class StatsDClient {
      * their keys prefixed with the specified string. The new client will
      * attempt to open a connection to the StatsD server immediately upon
      * instantiation, and may throw an exception if that a connection cannot
-     * be established.
+     * be established. Once a client has been instantiated in this way, all
+     * exceptions thrown during subsequent usage are consumed, guaranteeing
+     * that failures in metrics will not affect normal code execution.
      * 
      * @param prefix
      *     the prefix to apply to keys sent via this client
@@ -66,7 +73,34 @@ public final class StatsDClient {
      *     if the client could not be started
      */
     public StatsDClient(String prefix, String hostname, int port) throws StatsDClientException {
+        this(prefix, hostname, port, NO_OP_HANDLER);
+    }
+    
+    /**
+     * Create a new StatsD client communicating with a StatsD instance on the
+     * specified host and port. All messages send via this client will have
+     * their keys prefixed with the specified string. The new client will
+     * attempt to open a connection to the StatsD server immediately upon
+     * instantiation, and may throw an exception if that a connection cannot
+     * be established. Once a client has been instantiated in this way, all
+     * exceptions thrown during subsequent usage are passed to the specified
+     * handler and then consumed, guaranteeing that failures in metrics will
+     * not affect normal code execution.
+     * 
+     * @param prefix
+     *     the prefix to apply to keys sent via this client
+     * @param hostname
+     *     the host name of the targeted StatsD server
+     * @param port
+     *     the port of the targeted StatsD server
+     * @param errorHandler
+     *     handler to use when an exception occurs during usage
+     * @throws StatsDClientException
+     *     if the client could not be started
+     */
+    public StatsDClient(String prefix, String hostname, int port, StatsDClientErrorHandler errorHandler) throws StatsDClientException {
         this.prefix = prefix;
+        this.handler = errorHandler;
         
         try {
             this.clientSocket = new DatagramSocket();
@@ -86,7 +120,7 @@ public final class StatsDClient {
             executor.awaitTermination(30, TimeUnit.SECONDS);
         }
         catch (Exception e) {
-            throw new IllegalStateException(e);
+            handler.handle(e);
         }
         finally {
             if (clientSocket != null) {
@@ -198,7 +232,7 @@ public final class StatsDClient {
             });
         }
         catch (Exception e) {
-            // we cannot allow exceptions to interfere with our caller's execution
+            handler.handle(e);
         }
     }
 
@@ -208,6 +242,7 @@ public final class StatsDClient {
             final DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
             clientSocket.send(sendPacket);
         } catch (Exception e) {
+            handler.handle(e);
         }
     }
 }
