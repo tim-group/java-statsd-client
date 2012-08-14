@@ -33,7 +33,7 @@
             <manifest>
                 <attribute name="Implementation-Title" value="${ant.project.name}"/>
                 <attribute name="Implementation-Vendor" value="YouDevise"/>
-                <attribute name="Implementation-Version" value="@{moduleversion}"/>
+                <attribute name="Implementation-Version" value="${version.label}"/>
                 <attribute name="Built-By" value="${user.name}"/>
                 <attribute name="Built-Date" value="${build.timestamp}"/>
             </manifest>
@@ -51,6 +51,16 @@
         <jar destfile="${build.dir}/${ant.project.name}-test-${version.label}.jar">
             <fileset dir="${build.dir}/test.classes"/>
             <zipfileset src="${build.dir}/test-compiledeps.jar" excludes="**/META-INF/**"/>
+        </jar>
+    </target>
+
+    <target name="-jar-javadoc">
+        <mkdir dir="${build.dir}/javadoc"/>
+        <javadoc packagenames="*" sourcepath="${basedir}/src/main/java" defaultexcludes="yes"
+                 destdir="${build.dir}/javadoc" author="true" version="true" use="true" windowtitle="${ant.project.name}"/>
+        <jar destfile="${build.dir}/${ant.project.name}-${version.label}-javadoc.jar">
+            <fileset dir="${build.dir}/javadoc"/>
+            <fileset dir="${basedir}" includes="LICENSE README.md"/>
         </jar>
     </target>
 
@@ -73,4 +83,16 @@
 
     <target name="snapshot" description="Create a tested snapshot jar file" depends="test"/>
     <target name="release" description="Create a tested release jar file" depends="-version-for-release,snapshot"/>
+    <target name="bundle" description="Create a release bundle for deployment to maven central" depends="release,-jar-javadoc">
+        <copy file="${ant.project.name}.pom" tofile="${build.dir}/${ant.project.name}-${version.label}.pom">
+            <filterset><filter token="VERSION" value="${version.label}"/></filterset>
+        </copy>
+        <exec executable="gpg" dir="${build.dir}"><arg value="-ab"/><arg value="${ant.project.name}-${version.label}.pom"/></exec>
+        <exec executable="gpg" dir="${build.dir}"><arg value="-ab"/><arg value="${ant.project.name}-${version.label}.jar"/></exec>
+        <exec executable="gpg" dir="${build.dir}"><arg value="-ab"/><arg value="${ant.project.name}-${version.label}-javadoc.jar"/></exec>
+        <exec executable="gpg" dir="${build.dir}"><arg value="-ab"/><arg value="${ant.project.name}-${version.label}-sources.jar"/></exec>
+        <jar destfile="${build.dir}/bundle.jar">
+            <fileset dir="${build.dir}" includes="${ant.project.name}-${version.label}*"/>
+        </jar>
+    </target>
 </project>

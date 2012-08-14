@@ -1,0 +1,29 @@
+ <project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.timgroup</groupId>
+  <artifactId>tatin</artifactId>
+  <packaging>jar</packaging>
+  <name>java-statsd-client</name>
+  <version>@VERSION@</version>
+  <description>A tiny library allowing Java applications to communicate with statsd instances easily.</description>
+  <url>http://github.com/youdevise/java-statsd-client</url>
+  <licenses>
+    <license>
+      <name>The MIT License (MIT)</name>
+      <url>http://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>http://github.com/youdevise/java-statsd-client</url>
+    <connection>scm:git:git://github.com/youdevise/java-statsd-client.git</connection>
+    <developerConnection>scm:git:git@github.com:youdevise/java-statsd-client.git</developerConnection>
+  </scm>
+  <developers>
+    <developer>
+      <id>scarytom</id>
+      <name>Tom Denley</name>
+      <email>tom.denley@timgroup.com</email>
+    </developer>
+  </developers>
+</project>
