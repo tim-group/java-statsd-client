@@ -1,7 +1,7 @@
  <project>
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.timgroup</groupId>
-  <artifactId>tatin</artifactId>
+  <artifactId>java-statsd-client</artifactId>
   <packaging>jar</packaging>
   <name>java-statsd-client</name>
   <version>@VERSION@</version>
