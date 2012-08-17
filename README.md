@@ -21,7 +21,7 @@ Usage
 import com.timgroup.statsd.StatsDClient;
 
 public class Foo {
-  private final static StatsDClient statsd = new StatsDClient("my.prefix", "statsd-host", 8125);
+  private static final StatsDClient statsd = new StatsDClient("my.prefix", "statsd-host", 8125);
 
   public static final void main(String[] args) {
     statsd.incrementCounter("bar");
