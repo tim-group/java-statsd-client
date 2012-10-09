@@ -40,6 +40,7 @@ public final class StatsDClient {
         @Override public void handle(Exception e) { /* No-op */ }
     };
 
+    private final boolean isNoOp;
     private final String prefix;
     private final DatagramSocket clientSocket;
     private final StatsDClientErrorHandler handler;
@@ -99,6 +100,7 @@ public final class StatsDClient {
      *     if the client could not be started
      */
     public StatsDClient(String prefix, String hostname, int port, StatsDClientErrorHandler errorHandler) throws StatsDClientException {
+        this.isNoOp = false;
         this.prefix = prefix;
         this.handler = errorHandler;
         
@@ -111,10 +113,24 @@ public final class StatsDClient {
     }
 
     /**
+     * Creates a no-op StatsD client which essentially does nothing. Useful if you wish to disable StatsD functionality
+     * without having to check whether your StatsD client is enabled or not.
+     */
+    public StatsDClient() {
+        this.isNoOp = true;
+        this.prefix = "";
+        this.handler = NO_OP_HANDLER;
+        this.clientSocket = null;
+    }
+
+    /**
      * Cleanly shut down this StatsD client. This method may throw an exception if
      * the socket cannot be closed.
      */
     public void stop() {
+        if (this.isNoOp)
+            return;
+
         try {
             executor.shutdown();
             executor.awaitTermination(30, TimeUnit.SECONDS);
@@ -140,6 +156,9 @@ public final class StatsDClient {
      *     the amount to adjust the counter by
      */
     public void count(String aspect, int delta) {
+        if (this.isNoOp)
+            return;
+
         send(String.format("%s.%s:%d|c", prefix, aspect, delta));
     }
 
@@ -192,6 +211,9 @@ public final class StatsDClient {
      *     the new reading of the gauge
      */
     public void recordGaugeValue(String aspect, int value) {
+        if (this.isNoOp)
+            return;
+
         send(String.format("%s.%s:%d|g", prefix, aspect, value));
     }
 
@@ -213,6 +235,9 @@ public final class StatsDClient {
      *     the time in milliseconds
      */
     public void recordExecutionTime(String aspect, int timeInMs) {
+        if (this.isNoOp)
+            return;
+
         send(String.format("%s.%s:%d|ms", prefix, aspect, timeInMs));
     }
 
