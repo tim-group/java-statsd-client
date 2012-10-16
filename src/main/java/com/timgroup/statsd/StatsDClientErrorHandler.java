@@ -14,6 +14,6 @@ public interface StatsDClientErrorHandler {
      * @param exception
      *     the {@link Exception} that occurred
      */
-    void handle(Exception e);
+    void handle(Exception exception);
 
 }

@@ -203,7 +203,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     }
 
     /**
-     * Convenience method equivalent to {@link #recordGaugeValue(String)}. 
+     * Convenience method equivalent to {@link #recordGaugeValue(String, int)}. 
      */
     @Override
     public void gauge(String aspect, int value) {
@@ -226,7 +226,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     }
 
     /**
-     * Convenience method equivalent to {@link #recordExecutionTime(String)}. 
+     * Convenience method equivalent to {@link #recordExecutionTime(String, int)}. 
      */
     @Override
     public void time(String aspect, int value) {
