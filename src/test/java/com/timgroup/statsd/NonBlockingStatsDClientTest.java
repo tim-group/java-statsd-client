@@ -12,10 +12,10 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 
-public class StatsDClientTest {
+public class NonBlockingStatsDClientTest {
 
     private static final int STATSD_SERVER_PORT = 17254;
-    private final StatsDClient client = new StatsDClient("my.prefix", "localhost", STATSD_SERVER_PORT);
+    private final NonBlockingStatsDClient client = new NonBlockingStatsDClient("my.prefix", "localhost", STATSD_SERVER_PORT);
 
     @After
     public void stop() throws Exception {

@@ -11,7 +11,7 @@ The client jar is distributed via maven central, and can be downloaded [here](ht
 <dependency>
     <groupId>com.timgroup</groupId>
     <artifactId>java-statsd-client</artifactId>
-    <version>1.0.1</version>
+    <version>2.0.0</version>
 </dependency>
 ```
 
@@ -19,9 +19,10 @@ Usage
 -----
 ```java
 import com.timgroup.statsd.StatsDClient;
+import com.timgroup.statsd.NonBlockingStatsDClient;
 
 public class Foo {
-  private static final StatsDClient statsd = new StatsDClient("my.prefix", "statsd-host", 8125);
+  private static final StatsDClient statsd = new NonBlockingStatsDClient("my.prefix", "statsd-host", 8125);
 
   public static final void main(String[] args) {
     statsd.incrementCounter("bar");
