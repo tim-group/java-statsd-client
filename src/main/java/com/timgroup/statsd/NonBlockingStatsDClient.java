@@ -40,7 +40,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
         @Override public void handle(Exception e) { /* No-op */ }
     };
 
-    private final String prefix;
+    protected final String prefix;
     private final DatagramSocket clientSocket;
     private final StatsDClientErrorHandler handler;
 
@@ -233,7 +233,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
         recordExecutionTime(aspect, value);
     }
 
-    private void send(final String message) {
+    protected void send(final String message) {
         try {
             executor.execute(new Runnable() {
                 @Override public void run() {
@@ -246,7 +246,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
         }
     }
 
-    private void blockingSend(String message) {
+	protected void blockingSend(String message) {
         try {
             final byte[] sendData = message.getBytes();
             final DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
