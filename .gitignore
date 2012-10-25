@@ -1,2 +1,8 @@
 bin
 build
+
+.idea/libraries/buildlib.xml
+
+.idea/scopes/scope_settings.xml
+
+.idea/workspace.xml
