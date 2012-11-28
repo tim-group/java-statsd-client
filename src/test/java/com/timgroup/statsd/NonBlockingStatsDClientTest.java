@@ -202,6 +202,27 @@ public class NonBlockingStatsDClientTest {
         assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms|#baz,foo:bar"));
     }
 
+
+    @Test(timeout=5000L) public void
+    sends_gauge_empty_prefix() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+        final NonBlockingStatsDClient empty_prefix_client = new NonBlockingStatsDClient("", "localhost", STATSD_SERVER_PORT);
+        empty_prefix_client.gauge("top.level.value", 423);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("top.level.value:423|g"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_gauge_null_prefix() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+        final NonBlockingStatsDClient null_prefix_client = new NonBlockingStatsDClient(null, "localhost", STATSD_SERVER_PORT);
+        null_prefix_client.gauge("top.level.value", 423);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("top.level.value:423|g"));
+    }
+
     private static final class DummyStatsDServer {
         private final List<String> messagesReceived = new ArrayList<String>();
         private final DatagramSocket server;

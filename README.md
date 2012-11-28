@@ -5,6 +5,8 @@ A statsd client library implemented in Java.  Allows for Java applications to ea
 
 This version is forked from the upstream [java-statsd-client](https://github.com/youdevise/java-statsd-client) project, adding support for [DataDog](http://datadoghq.com/) extensions for use with [dogstatsd](http://docs.datadoghq.com/guides/dogstatsd/).
 
+This version also adds support for empty or null prefixes, to allow a client to send arbitrary statistic names.
+
 Downloads
 ---------
 The client jar is distributed via maven central, and can be downloaded [here](http://search.maven.org/#search%7Cga%7C1%7Cg%3Acom.timgroup%20a%3Ajava-statsd-client).

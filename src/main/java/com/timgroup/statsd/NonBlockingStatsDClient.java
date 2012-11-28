@@ -100,7 +100,11 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     if the client could not be started
      */
     public NonBlockingStatsDClient(String prefix, String hostname, int port, StatsDClientErrorHandler errorHandler) throws StatsDClientException {
-        this.prefix = prefix;
+        if(prefix != null && prefix.length() > 0) {
+            this.prefix = String.format("%s.", prefix);
+        } else {
+            this.prefix = "";
+        }
         this.handler = errorHandler;
         
         try {
@@ -162,7 +166,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void count(String aspect, int delta, String[] tags) {
-        send(String.format("%s.%s:%d|c%s", prefix, aspect, delta, tagString(tags)));
+        send(String.format("%s%s:%d|c%s", prefix, aspect, delta, tagString(tags)));
     }
 
     /**
@@ -177,7 +181,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void count(String aspect, int delta) {
-        send(String.format("%s.%s:%d|c", prefix, aspect, delta));
+        send(String.format("%s%s:%d|c", prefix, aspect, delta));
     }
 
     /**
@@ -284,7 +288,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     public void recordGaugeValue(String aspect, double value, String[] tags) {
         /* Intentionally using %s rather than %f here to avoid
          * padding with extra 0s to represent precision */
-        send(String.format("%s.%s:%s|g%s", prefix, aspect, value, tagString(tags)));
+        send(String.format("%s%s:%s|g%s", prefix, aspect, value, tagString(tags)));
     }
 
     /**
@@ -301,7 +305,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     public void recordGaugeValue(String aspect, double value) {
         /* Intentionally using %s rather than %f here to avoid
          * padding with extra 0s to represent precision */
-        send(String.format("%s.%s:%s|g", prefix, aspect, value));
+        send(String.format("%s%s:%s|g", prefix, aspect, value));
     }
 
     /**
@@ -335,7 +339,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void recordGaugeValue(String aspect, int value, String[] tags) {
-        send(String.format("%s.%s:%d|g%s", prefix, aspect, value, tagString(tags)));
+        send(String.format("%s%s:%d|g%s", prefix, aspect, value, tagString(tags)));
     }
 
     /**
@@ -350,7 +354,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void recordGaugeValue(String aspect, int value) {
-        send(String.format("%s.%s:%d|g", prefix, aspect, value));
+        send(String.format("%s%s:%d|g", prefix, aspect, value));
     }
 
     /**
@@ -383,7 +387,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void recordExecutionTime(String aspect, int timeInMs, String[] tags) {
-        send(String.format("%s.%s:%d|ms%s", prefix, aspect, timeInMs, tagString(tags)));
+        send(String.format("%s%s:%d|ms%s", prefix, aspect, timeInMs, tagString(tags)));
     }
 
     /**
@@ -398,7 +402,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void recordExecutionTime(String aspect, int timeInMs) {
-        send(String.format("%s.%s:%d|ms", prefix, aspect, timeInMs));
+        send(String.format("%s%s:%d|ms", prefix, aspect, timeInMs));
     }
 
     /**
@@ -433,7 +437,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     public void recordHistogramValue(String aspect, double value, String[] tags) {
         /* Intentionally using %s rather than %f here to avoid
          * padding with extra 0s to represent precision */
-        send(String.format("%s.%s:%s|h%s", prefix, aspect, value, tagString(tags)));
+        send(String.format("%s%s:%s|h%s", prefix, aspect, value, tagString(tags)));
     }
 
     /**
@@ -450,7 +454,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     public void recordHistogramValue(String aspect, double value) {
         /* Intentionally using %s rather than %f here to avoid
          * padding with extra 0s to represent precision */
-        send(String.format("%s.%s:%s|h", prefix, aspect, value));
+        send(String.format("%s%s:%s|h", prefix, aspect, value));
     }
 
     /**
@@ -483,7 +487,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void recordHistogramValue(String aspect, int value, String[] tags) {
-        send(String.format("%s.%s:%d|h%s", prefix, aspect, value, tagString(tags)));
+        send(String.format("%s%s:%d|h%s", prefix, aspect, value, tagString(tags)));
     }
 
     /**
@@ -498,7 +502,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void recordHistogramValue(String aspect, int value) {
-        send(String.format("%s.%s:%d|h", prefix, aspect, value));
+        send(String.format("%s%s:%d|h", prefix, aspect, value));
     }
 
     /**
