@@ -1,7 +1,9 @@
-java-statsd-client
+java-dogstatsd-client
 ==================
 
 A statsd client library implemented in Java.  Allows for Java applications to easily communicate with statsd.
+
+This version is forked from the upstream [java-statsd-client](https://github.com/youdevise/java-statsd-client) project, adding support for [DataDog](http://datadoghq.com/) extensions for use with [dogstatsd](http://docs.datadoghq.com/guides/dogstatsd/).
 
 Downloads
 ---------
@@ -9,9 +11,9 @@ The client jar is distributed via maven central, and can be downloaded [here](ht
 
 ```xml
 <dependency>
-    <groupId>com.timgroup</groupId>
-    <artifactId>java-statsd-client</artifactId>
-    <version>2.0.0</version>
+    <groupId>com.indeed</groupId>
+    <artifactId>java-dogstatsd-client</artifactId>
+    <version>2.0.1</version>
 </dependency>
 ```
 
@@ -25,9 +27,11 @@ public class Foo {
   private static final StatsDClient statsd = new NonBlockingStatsDClient("my.prefix", "statsd-host", 8125);
 
   public static final void main(String[] args) {
-    statsd.incrementCounter("bar");
-    statsd.recordGaugeValue("baz", 100);
-    statsd.recordExecutionTime("bag", 25);
+    statsd.incrementCounter("foo");
+    statsd.recordGaugeValue("bar", 100);
+    statsd.recordGaugeValue("baz", 0.01); /* DataDog extension: support for floating-point gauges */
+    statsd.recordExecutionTime("bag", 25, {"cluster:foo"}); /* DataDog extension: cluster tag */
+    statsd.recordHistogram("qux", 15) /* DataDog extension: histograms */
   }
 }
 ```

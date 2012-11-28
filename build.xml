@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <project name="java-statsd-client" default="snapshot" basedir=".">
 
-    <property name="target.version" value="2.0.0"/>
+    <property name="target.version" value="2.0.1"/>
     <property name="build.dir"      value="${basedir}/build"/>
     <tstamp><format property="build.number" pattern="yyyyMMddHHmmss" timezone="GMT"/></tstamp>
     <tstamp><format property="build.timestamp" pattern="yyyy-MM-dd HH:mm:ss" timezone="GMT"/></tstamp>
