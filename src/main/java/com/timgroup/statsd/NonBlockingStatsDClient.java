@@ -419,6 +419,58 @@ public final class NonBlockingStatsDClient implements StatsDClient {
 
     /**
      * Records a value for the specified named histogram.
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the histogram
+     * @param value
+     *     the value to be incorporated in the histogram
+     * @param tags
+     *     array of tags to be added to the data
+     */
+    @Override
+    public void recordHistogramValue(String aspect, double value, String[] tags) {
+        /* Intentionally using %s rather than %f here to avoid
+         * padding with extra 0s to represent precision */
+        send(String.format("%s.%s:%s|h%s", prefix, aspect, value, tagString(tags)));
+    }
+
+    /**
+     * Records a value for the specified named histogram.
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the histogram
+     * @param value
+     *     the value to be incorporated in the histogram
+     */
+    @Override
+    public void recordHistogramValue(String aspect, double value) {
+        /* Intentionally using %s rather than %f here to avoid
+         * padding with extra 0s to represent precision */
+        send(String.format("%s.%s:%s|h", prefix, aspect, value));
+    }
+
+    /**
+     * Convenience method equivalent to {@link #recordHistogramValue(String, double, String[])}.
+     */
+    @Override
+    public void histogram(String aspect, double value, String[] tags) {
+        recordHistogramValue(aspect, value, tags);
+    }
+
+    /**
+     * Convenience method equivalent to {@link #recordHistogramValue(String, double, String[])}.
+     */
+    @Override
+    public void histogram(String aspect, double value) {
+        recordHistogramValue(aspect, value);
+    }
+
+    /**
+     * Records a value for the specified named histogram.
      * 
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
      * 

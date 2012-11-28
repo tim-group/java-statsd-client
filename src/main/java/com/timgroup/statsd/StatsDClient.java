@@ -246,6 +246,46 @@ public interface StatsDClient {
      * @param tags
      *     array of tags to be added to the data
      */
+    void recordHistogramValue(String aspect, double value, String[] tags);
+
+    /**
+     * Records a value for the specified named histogram.
+     *
+     * <p>This method is a DataDog extension, and may not work with other servers.</p>
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the histogram
+     * @param value
+     *     the value to be incorporated in the histogram
+     */
+    void recordHistogramValue(String aspect, double value);
+
+    /**
+     * Convenience method equivalent to {@link #recordHistogramValue(String, double, String[])}.
+     */
+    void histogram(String aspect, double value, String[] tags);
+
+    /**
+     * Convenience method equivalent to {@link #recordHistogramValue(String, double)}.
+     */
+    void histogram(String aspect, double value);
+
+    /**
+     * Records a value for the specified named histogram.
+     *
+     * <p>This method is a DataDog extension, and may not work with other servers.</p>
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the histogram
+     * @param value
+     *     the value to be incorporated in the histogram
+     * @param tags
+     *     array of tags to be added to the data
+     */
     void recordHistogramValue(String aspect, int value, String[] tags);
 
     /**

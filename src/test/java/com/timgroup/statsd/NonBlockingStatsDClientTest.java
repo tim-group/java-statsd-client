@@ -143,6 +143,46 @@ public class NonBlockingStatsDClientTest {
     }
 
     @Test(timeout=5000L) public void
+    sends_histogram_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+
+        client.recordHistogramValue("myhistogram", 423);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.myhistogram:423|h"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_double_histogram_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+
+        client.recordHistogramValue("myhistogram", 0.423);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.myhistogram:0.423|h"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_histogram_to_statsd_with_tags() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+
+        client.recordHistogramValue("myhistogram", 423, new String[]{"foo:bar","baz"});
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.myhistogram:423|h|#baz,foo:bar"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_double_histogram_to_statsd_with_tags() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+
+        client.recordHistogramValue("myhistogram", 0.423, new String[]{"foo:bar","baz"});
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.myhistogram:0.423|h|#baz,foo:bar"));
+    }
+
+    @Test(timeout=5000L) public void
     sends_timer_to_statsd() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         

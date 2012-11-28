@@ -13,7 +13,7 @@ The client jar is distributed via maven central, and can be downloaded [here](ht
 <dependency>
     <groupId>com.indeed</groupId>
     <artifactId>java-dogstatsd-client</artifactId>
-    <version>2.0.1</version>
+    <version>2.0.2</version>
 </dependency>
 ```
 
@@ -31,7 +31,8 @@ public class Foo {
     statsd.recordGaugeValue("bar", 100);
     statsd.recordGaugeValue("baz", 0.01); /* DataDog extension: support for floating-point gauges */
     statsd.recordExecutionTime("bag", 25, {"cluster:foo"}); /* DataDog extension: cluster tag */
-    statsd.recordHistogram("qux", 15) /* DataDog extension: histograms */
+    statsd.recordHistogram("qux", 15)   /* DataDog extension: histograms */
+    statsd.recordHistogram("qux", 15.5) /* ...also floating-point */
   }
 }
 ```

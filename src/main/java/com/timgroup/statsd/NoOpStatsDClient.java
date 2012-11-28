@@ -31,6 +31,10 @@ public final class NoOpStatsDClient implements StatsDClient {
     @Override public void recordExecutionTime(String aspect, int timeInMs) { }
     @Override public void time(String aspect, int value, String[] tags) { }
     @Override public void time(String aspect, int value) { }
+    @Override public void recordHistogramValue(String aspect, double value, String[] tags) { }
+    @Override public void recordHistogramValue(String aspect, double value) { }
+    @Override public void histogram(String aspect, double value, String[] tags) { }
+    @Override public void histogram(String aspect, double value) { }
     @Override public void recordHistogramValue(String aspect, int value, String[] tags) { }
     @Override public void recordHistogramValue(String aspect, int value) { }
     @Override public void histogram(String aspect, int value, String[] tags) { }
