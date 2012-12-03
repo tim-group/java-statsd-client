@@ -113,6 +113,26 @@ public class NonBlockingStatsDClientTest {
     }
 
     @Test(timeout=5000L) public void
+    sends_large_double_gauge_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+
+        client.recordGaugeValue("mygauge", 123456789012345.67890);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mygauge:123456789012345.67|g"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_exact_double_gauge_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+
+        client.recordGaugeValue("mygauge", 123.45678901234567890);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mygauge:123.456789|g"));
+    }
+
+    @Test(timeout=5000L) public void
     sends_double_gauge_to_statsd() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
