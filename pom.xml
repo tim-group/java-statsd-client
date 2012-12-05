@@ -1,0 +1,88 @@
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.indeed</groupId>
+  <artifactId>java-dogstatsd-client</artifactId>
+  <packaging>jar</packaging>
+  <name>java-dogstatsd-client</name>
+  <version>2.0.5-SNAPSHOT</version>
+  <description>A tiny library allowing Java applications to communicate with DataDog statsd instances easily.</description>
+  <url>https://github.com/indeedeng/java-dogstatsd-client</url>
+  <properties>
+    <java.version>1.6</java.version>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.0</version>
+        <configuration>
+          <source>${java.version}</source>
+          <target>${java.version}</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>2.9</version>
+        <executions>
+          <execution>
+            <id>attach-javadocs</id>
+            <goals>
+              <goal>jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+  <licenses>
+    <license>
+      <name>The MIT License (MIT)</name>
+      <url>http://opensource.org/licenses/MIT</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>http://github.com/indeedeng/java-dogstatsd-client</url>
+    <connection>scm:git:git://github.com/indeedeng/java-dogstatsd-client.git</connection>
+    <developerConnection>scm:git:git@github.com:indeedeng/java-dogstatsd-client.git</developerConnection>
+  </scm>
+  <developers>
+    <developer> <!-- Initial datadog port -->
+      <id>duffy</id>
+      <name>Charles Duffy</name>
+      <email>duffy@indeed.com</email>
+    </developer>
+    <developer> <!-- Upstream, pre-datadog version -->
+      <id>scarytom</id>
+      <name>Tom Denley</name>
+      <email>tom.denley@timgroup.com</email>
+    </developer>
+  </developers>
+  <dependencies>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-core</artifactId>
+      <version>1.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hamcrest</groupId>
+      <artifactId>hamcrest-library</artifactId>
+      <version>1.3</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
