@@ -46,7 +46,7 @@ public class NonBlockingStatsDClientTest {
     sends_counter_value_to_statsd_with_empty_tags() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
-        client.count("mycount", 24, new String[]{});
+        client.count("mycount", 24);
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mycount:24|c"));
@@ -56,7 +56,7 @@ public class NonBlockingStatsDClientTest {
     sends_counter_value_to_statsd_with_tags() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
-        client.count("mycount", 24, new String[]{"foo:bar","baz"});
+        client.count("mycount", 24, "foo:bar","baz");
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mycount:24|c|#baz,foo:bar"));
@@ -76,7 +76,7 @@ public class NonBlockingStatsDClientTest {
     sends_counter_increment_to_statsd_with_tags() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
-        client.incrementCounter("myinc", new String[]{"foo:bar","baz"});
+        client.incrementCounter("myinc", "foo:bar","baz");
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.myinc:1|c|#baz,foo:bar"));
@@ -96,7 +96,7 @@ public class NonBlockingStatsDClientTest {
     sends_counter_decrement_to_statsd_with_tags() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
-        client.decrementCounter("mydec", new String[]{"foo:bar", "baz"});
+        client.decrementCounter("mydec", "foo:bar", "baz");
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mydec:-1|c|#baz,foo:bar"));
@@ -146,7 +146,7 @@ public class NonBlockingStatsDClientTest {
     sends_gauge_to_statsd_with_tags() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
-        client.recordGaugeValue("mygauge", 423, new String[]{"foo:bar","baz"});
+        client.recordGaugeValue("mygauge", 423, "foo:bar","baz");
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mygauge:423|g|#baz,foo:bar"));
@@ -156,7 +156,7 @@ public class NonBlockingStatsDClientTest {
     sends_double_gauge_to_statsd_with_tags() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
-        client.recordGaugeValue("mygauge", 0.423, new String[]{"foo:bar","baz"});
+        client.recordGaugeValue("mygauge", 0.423, "foo:bar","baz");
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mygauge:0.423|g|#baz,foo:bar"));
@@ -186,7 +186,7 @@ public class NonBlockingStatsDClientTest {
     sends_histogram_to_statsd_with_tags() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
 
-        client.recordHistogramValue("myhistogram", 423, new String[]{"foo:bar","baz"});
+        client.recordHistogramValue("myhistogram", 423, "foo:bar","baz");
         server.waitForMessage();
 
         assertThat(server.messagesReceived(), contains("my.prefix.myhistogram:423|h|#baz,foo:bar"));
@@ -196,7 +196,7 @@ public class NonBlockingStatsDClientTest {
     sends_double_histogram_to_statsd_with_tags() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
 
-        client.recordHistogramValue("myhistogram", 0.423, new String[]{"foo:bar","baz"});
+        client.recordHistogramValue("myhistogram", 0.423, "foo:bar","baz");
         server.waitForMessage();
 
         assertThat(server.messagesReceived(), contains("my.prefix.myhistogram:0.423|h|#baz,foo:bar"));
@@ -216,7 +216,7 @@ public class NonBlockingStatsDClientTest {
     sends_timer_to_statsd_with_tags() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
-        client.recordExecutionTime("mytime", 123, new String[]{"foo:bar","baz"});
+        client.recordExecutionTime("mytime", 123, "foo:bar","baz");
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms|#baz,foo:bar"));
