@@ -15,7 +15,7 @@ The client jar is distributed via maven central, and can be downloaded [here](ht
 <dependency>
     <groupId>com.indeed</groupId>
     <artifactId>java-dogstatsd-client</artifactId>
-    <version>2.0.2</version>
+    <version>2.0.5</version>
 </dependency>
 ```
 
