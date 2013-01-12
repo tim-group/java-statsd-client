@@ -173,23 +173,8 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void count(String aspect, int delta, String[] tags) {
+    public void count(String aspect, int delta, String... tags) {
         send(String.format("%s%s:%d|c%s", prefix, aspect, delta, tagString(tags)));
-    }
-
-    /**
-     * Adjusts the specified counter by a given delta.
-     * 
-     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
-     * @param aspect
-     *     the name of the counter to adjust
-     * @param delta
-     *     the amount to adjust the counter by
-     */
-    @Override
-    public void count(String aspect, int delta) {
-        send(String.format("%s%s:%d|c", prefix, aspect, delta));
     }
 
     /**
@@ -203,37 +188,16 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void incrementCounter(String aspect, String[] tags) {
+    public void incrementCounter(String aspect, String... tags) {
         count(aspect, 1, tags);
-    }
-
-    /**
-     * Increments the specified counter by one.
-     * 
-     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
-     * @param aspect
-     *     the name of the counter to increment
-     */
-    @Override
-    public void incrementCounter(String aspect) {
-        count(aspect, 1);
     }
 
     /**
      * Convenience method equivalent to {@link #incrementCounter(String, String[])}. 
      */
     @Override
-    public void increment(String aspect, String[] tags) {
+    public void increment(String aspect, String... tags) {
         incrementCounter(aspect, tags);
-    }
-
-    /**
-     * Convenience method equivalent to {@link #incrementCounter(String)}. 
-     */
-    @Override
-    public void increment(String aspect) {
-        incrementCounter(aspect);
     }
 
     /**
@@ -247,37 +211,16 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void decrementCounter(String aspect, String[] tags) {
+    public void decrementCounter(String aspect, String... tags) {
         count(aspect, -1, tags);
-    }
-
-    /**
-     * Decrements the specified counter by one.
-     * 
-     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
-     * @param aspect
-     *     the name of the counter to decrement
-     */
-    @Override
-    public void decrementCounter(String aspect) {
-        count(aspect, -1);
     }
 
     /**
      * Convenience method equivalent to {@link #decrementCounter(String, String[])}. 
      */
     @Override
-    public void decrement(String aspect, String[] tags) {
+    public void decrement(String aspect, String... tags) {
         decrementCounter(aspect, tags);
-    }
-
-    /**
-     * Convenience method equivalent to {@link #decrementCounter(String)}. 
-     */
-    @Override
-    public void decrement(String aspect) {
-        decrementCounter(aspect);
     }
 
     /**
@@ -293,43 +236,18 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordGaugeValue(String aspect, double value, String[] tags) {
+    public void recordGaugeValue(String aspect, double value, String... tags) {
         /* Intentionally using %s rather than %f here to avoid
          * padding with extra 0s to represent precision */
         send(String.format("%s%s:%s|g%s", prefix, aspect, FORMAT.format(value), tagString(tags)));
     }
 
     /**
-     * Records the latest fixed value for the specified named gauge.
-     * 
-     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
-     * @param aspect
-     *     the name of the gauge
-     * @param value
-     *     the new reading of the gauge
-     */
-    @Override
-    public void recordGaugeValue(String aspect, double value) {
-        /* Intentionally using %s rather than %f here to avoid
-         * padding with extra 0s to represent precision */
-        send(String.format("%s%s:%s|g", prefix, aspect, FORMAT.format(value)));
-    }
-
-    /**
      * Convenience method equivalent to {@link #recordGaugeValue(String, double, String[])}.
      */
     @Override
-    public void gauge(String aspect, double value, String[] tags) {
+    public void gauge(String aspect, double value, String... tags) {
         recordGaugeValue(aspect, value, tags);
-    }
-
-    /**
-     * Convenience method equivalent to {@link #recordGaugeValue(String, double)}.
-     */
-    @Override
-    public void gauge(String aspect, double value) {
-        recordGaugeValue(aspect, value);
     }
 
 
@@ -346,39 +264,16 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordGaugeValue(String aspect, int value, String[] tags) {
+    public void recordGaugeValue(String aspect, int value, String... tags) {
         send(String.format("%s%s:%d|g%s", prefix, aspect, value, tagString(tags)));
-    }
-
-    /**
-     * Records the latest fixed value for the specified named gauge.
-     * 
-     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
-     * @param aspect
-     *     the name of the gauge
-     * @param value
-     *     the new reading of the gauge
-     */
-    @Override
-    public void recordGaugeValue(String aspect, int value) {
-        send(String.format("%s%s:%d|g", prefix, aspect, value));
     }
 
     /**
      * Convenience method equivalent to {@link #recordGaugeValue(String, int, String[])}. 
      */
     @Override
-    public void gauge(String aspect, int value, String[] tags) {
+    public void gauge(String aspect, int value, String... tags) {
         recordGaugeValue(aspect, value, tags);
-    }
-
-    /**
-     * Convenience method equivalent to {@link #recordGaugeValue(String, int)}. 
-     */
-    @Override
-    public void gauge(String aspect, int value) {
-        recordGaugeValue(aspect, value);
     }
 
     /**
@@ -394,39 +289,16 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordExecutionTime(String aspect, int timeInMs, String[] tags) {
+    public void recordExecutionTime(String aspect, long timeInMs, String... tags) {
         send(String.format("%s%s:%d|ms%s", prefix, aspect, timeInMs, tagString(tags)));
     }
 
     /**
-     * Records an execution time in milliseconds for the specified named operation.
-     * 
-     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
-     * @param aspect
-     *     the name of the timed operation
-     * @param timeInMs
-     *     the time in milliseconds
+     * Convenience method equivalent to {@link #recordExecutionTime(String, long, String[])}.
      */
     @Override
-    public void recordExecutionTime(String aspect, int timeInMs) {
-        send(String.format("%s%s:%d|ms", prefix, aspect, timeInMs));
-    }
-
-    /**
-     * Convenience method equivalent to {@link #recordExecutionTime(String, int, String[])}. 
-     */
-    @Override
-    public void time(String aspect, int value, String[] tags) {
+    public void time(String aspect, long value, String... tags) {
         recordExecutionTime(aspect, value, tags);
-    }
-
-    /**
-     * Convenience method equivalent to {@link #recordExecutionTime(String, int)}. 
-     */
-    @Override
-    public void time(String aspect, int value) {
-        recordExecutionTime(aspect, value);
     }
 
     /**
@@ -442,43 +314,18 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordHistogramValue(String aspect, double value, String[] tags) {
+    public void recordHistogramValue(String aspect, double value, String... tags) {
         /* Intentionally using %s rather than %f here to avoid
          * padding with extra 0s to represent precision */
         send(String.format("%s%s:%s|h%s", prefix, aspect, FORMAT.format(value), tagString(tags)));
     }
 
     /**
-     * Records a value for the specified named histogram.
-     *
-     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     *
-     * @param aspect
-     *     the name of the histogram
-     * @param value
-     *     the value to be incorporated in the histogram
-     */
-    @Override
-    public void recordHistogramValue(String aspect, double value) {
-        /* Intentionally using %s rather than %f here to avoid
-         * padding with extra 0s to represent precision */
-        send(String.format("%s%s:%s|h", prefix, aspect, FORMAT.format(value)));
-    }
-
-    /**
      * Convenience method equivalent to {@link #recordHistogramValue(String, double, String[])}.
      */
     @Override
-    public void histogram(String aspect, double value, String[] tags) {
+    public void histogram(String aspect, double value, String... tags) {
         recordHistogramValue(aspect, value, tags);
-    }
-
-    /**
-     * Convenience method equivalent to {@link #recordHistogramValue(String, double, String[])}.
-     */
-    @Override
-    public void histogram(String aspect, double value) {
-        recordHistogramValue(aspect, value);
     }
 
     /**
@@ -494,39 +341,16 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordHistogramValue(String aspect, int value, String[] tags) {
+    public void recordHistogramValue(String aspect, int value, String... tags) {
         send(String.format("%s%s:%d|h%s", prefix, aspect, value, tagString(tags)));
-    }
-
-    /**
-     * Records a value for the specified named histogram.
-     * 
-     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
-     * @param aspect
-     *     the name of the histogram
-     * @param value
-     *     the value to be incorporated in the histogram
-     */
-    @Override
-    public void recordHistogramValue(String aspect, int value) {
-        send(String.format("%s%s:%d|h", prefix, aspect, value));
     }
 
     /**
      * Convenience method equivalent to {@link #recordHistogramValue(String, int, String[])}. 
      */
     @Override
-    public void histogram(String aspect, int value, String[] tags) {
+    public void histogram(String aspect, int value, String... tags) {
         recordHistogramValue(aspect, value, tags);
-    }
-
-    /**
-     * Convenience method equivalent to {@link #recordHistogramValue(String, int)}. 
-     */
-    @Override
-    public void histogram(String aspect, int value) {
-        recordHistogramValue(aspect, value);
     }
 
     private void send(final String message) {
