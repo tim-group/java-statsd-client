@@ -32,7 +32,7 @@ public class Foo {
     statsd.incrementCounter("foo");
     statsd.recordGaugeValue("bar", 100);
     statsd.recordGaugeValue("baz", 0.01); /* DataDog extension: support for floating-point gauges */
-    statsd.recordExecutionTime("bag", 25, {"cluster:foo"}); /* DataDog extension: cluster tag */
+    statsd.recordExecutionTime("bag", 25, "cluster:foo"); /* DataDog extension: cluster tag */
     statsd.recordHistogram("qux", 15)   /* DataDog extension: histograms */
     statsd.recordHistogram("qux", 15.5) /* ...also floating-point */
   }
