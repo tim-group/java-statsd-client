@@ -81,6 +81,23 @@ public interface StatsDClient {
      * Convenience method equivalent to {@link #recordGaugeValue(String, int)}. 
      */
     void gauge(String aspect, int value);
+    
+    /**
+     * Adds one or more elements to the specified named set.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * @param aspect
+     *     the name of the set
+     * @param elements
+     *     one or more elements to be added to the set
+     */
+    void addSetElements(String aspect, String... elements);
+
+    /**
+     * Convenience method equivalent to {@link #addSetElements(String, String...)}. 
+     */
+    void setAdd(String aspect, String... elements);
 
     /**
      * Records an execution time in milliseconds for the specified named operation.

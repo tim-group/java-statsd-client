@@ -209,6 +209,36 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     public void gauge(String aspect, int value) {
         recordGaugeValue(aspect, value);
     }
+    
+    /**
+     * Adds one or more elements to the specified named set.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * @param aspect
+     *     the name of the set
+     * @param elements
+     *     one or more elements to be added to the set
+     */
+    @Override
+    public void addSetElements(String aspect, String... elements) {
+        if(elements.length == 0) return;
+        
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < elements.length; i++) {
+            sb.append(String.format("%s.%s:%s|s", prefix, aspect, elements[i]));
+            if(i < elements.length - 1) sb.append("\n");
+        }
+        send(sb.toString());
+    }
+
+    /**
+     * Convenience method equivalent to {@link #addSetElements(String, String...)}. 
+     */
+    @Override
+    public void setAdd(String aspect, String... elements) {
+    	addSetElements(aspect, elements);
+    }
 
     /**
      * Records an execution time in milliseconds for the specified named operation.
