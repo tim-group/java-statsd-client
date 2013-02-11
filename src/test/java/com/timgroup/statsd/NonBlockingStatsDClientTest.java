@@ -36,7 +36,7 @@ public class NonBlockingStatsDClientTest {
     sends_counter_value_to_statsd_with_null_tags() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
-        client.count("mycount", 24, null);
+        client.count("mycount", 24, (java.lang.String[]) null);
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mycount:24|c"));
@@ -209,7 +209,7 @@ public class NonBlockingStatsDClientTest {
         client.recordExecutionTime("mytime", 123);
         server.waitForMessage();
         
-        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms"));
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:0.123|h"));
     }
 
     @Test(timeout=5000L) public void
@@ -219,9 +219,29 @@ public class NonBlockingStatsDClientTest {
         client.recordExecutionTime("mytime", 123, "foo:bar", "baz");
         server.waitForMessage();
         
-        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms|#baz,foo:bar"));
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:0.123|h|#baz,foo:bar"));
     }
 
+
+    @Test(timeout=5000L) public void
+    sends_gauge_mixed_tags() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+        final NonBlockingStatsDClient empty_prefix_client = new NonBlockingStatsDClient("my.prefix", "localhost", STATSD_SERVER_PORT, new String[] {"instance:foo", "app:bar"});
+        empty_prefix_client.gauge("value", 423, "baz");
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.value:423|g|#app:bar,instance:foo,baz"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_gauge_constant_tags_only() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+        final NonBlockingStatsDClient empty_prefix_client = new NonBlockingStatsDClient("my.prefix", "localhost", STATSD_SERVER_PORT, new String[] {"instance:foo", "app:bar"});
+        empty_prefix_client.gauge("value", 423);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.value:423|g|#app:bar,instance:foo"));
+    }
 
     @Test(timeout=5000L) public void
     sends_gauge_empty_prefix() throws Exception {

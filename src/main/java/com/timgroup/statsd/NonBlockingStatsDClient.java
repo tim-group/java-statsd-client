@@ -52,6 +52,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     private final String prefix;
     private final DatagramSocket clientSocket;
     private final StatsDClientErrorHandler handler;
+    private final String[] constantTags;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
         final ThreadFactory delegate = Executors.defaultThreadFactory();
@@ -71,7 +72,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * be established. Once a client has been instantiated in this way, all
      * exceptions thrown during subsequent usage are consumed, guaranteeing
      * that failures in metrics will not affect normal code execution.
-     * 
+     *
      * @param prefix
      *     the prefix to apply to keys sent via this client
      * @param hostname
@@ -82,9 +83,34 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     if the client could not be started
      */
     public NonBlockingStatsDClient(String prefix, String hostname, int port) throws StatsDClientException {
-        this(prefix, hostname, port, NO_OP_HANDLER);
+        this(prefix, hostname, port, null, NO_OP_HANDLER);
     }
-    
+
+    /**
+     * Create a new StatsD client communicating with a StatsD instance on the
+     * specified host and port. All messages send via this client will have
+     * their keys prefixed with the specified string. The new client will
+     * attempt to open a connection to the StatsD server immediately upon
+     * instantiation, and may throw an exception if that a connection cannot
+     * be established. Once a client has been instantiated in this way, all
+     * exceptions thrown during subsequent usage are consumed, guaranteeing
+     * that failures in metrics will not affect normal code execution.
+     * 
+     * @param prefix
+     *     the prefix to apply to keys sent via this client
+     * @param hostname
+     *     the host name of the targeted StatsD server
+     * @param port
+     *     the port of the targeted StatsD server
+     * @param constantTags
+     *     tags to be added to all content sent
+     * @throws StatsDClientException
+     *     if the client could not be started
+     */
+    public NonBlockingStatsDClient(String prefix, String hostname, int port, String[] constantTags) throws StatsDClientException {
+        this(prefix, hostname, port, constantTags, NO_OP_HANDLER);
+    }
+
     /**
      * Create a new StatsD client communicating with a StatsD instance on the
      * specified host and port. All messages send via this client will have
@@ -102,19 +128,25 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     the host name of the targeted StatsD server
      * @param port
      *     the port of the targeted StatsD server
+     * @param constantTags
+     *     tags to be added to all content sent
      * @param errorHandler
      *     handler to use when an exception occurs during usage
      * @throws StatsDClientException
      *     if the client could not be started
      */
-    public NonBlockingStatsDClient(String prefix, String hostname, int port, StatsDClientErrorHandler errorHandler) throws StatsDClientException {
+    public NonBlockingStatsDClient(String prefix, String hostname, int port, String[] constantTags, StatsDClientErrorHandler errorHandler) throws StatsDClientException {
         if(prefix != null && prefix.length() > 0) {
             this.prefix = String.format("%s.", prefix);
         } else {
             this.prefix = "";
         }
         this.handler = errorHandler;
-        
+        if(constantTags != null && constantTags.length == 0) {
+            constantTags = null;
+        }
+        this.constantTags = constantTags;
+
         try {
             this.clientSocket = new DatagramSocket();
             this.clientSocket.connect(new InetSocketAddress(hostname, port));
@@ -147,14 +179,26 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * Generate a suffix conveying the given tag list to the client
      */
     String tagString(String[] tags) {
-        if(tags == null || tags.length == 0) {
+        boolean have_call_tags = (tags != null && tags.length > 0);
+        boolean have_constant_tags = (constantTags != null && constantTags.length > 0);
+        if(!have_call_tags && !have_constant_tags) {
             return "";
         }
         StringBuilder sb = new StringBuilder("|#");
-        for(int n=tags.length - 1; n>=0; n--) {
-            sb.append(tags[n]);
-            if(n > 0) {
-                sb.append(",");
+        if(have_constant_tags) {
+            for(int n=constantTags.length - 1; n>=0; n--) {
+                sb.append(constantTags[n]);
+                if(n > 0 || have_call_tags) {
+                    sb.append(",");
+                }
+            }
+        }
+        if (have_call_tags) {
+            for(int n=tags.length - 1; n>=0; n--) {
+                sb.append(tags[n]);
+                if(n > 0) {
+                    sb.append(",");
+                }
             }
         }
         return sb.toString();
@@ -290,7 +334,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void recordExecutionTime(String aspect, long timeInMs, String... tags) {
-        send(String.format("%s%s:%d|ms%s", prefix, aspect, timeInMs, tagString(tags)));
+        recordHistogramValue(aspect, (timeInMs * 0.001), tags);
     }
 
     /**
