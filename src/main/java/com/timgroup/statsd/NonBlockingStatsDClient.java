@@ -52,7 +52,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     private final String prefix;
     private final DatagramSocket clientSocket;
     private final StatsDClientErrorHandler handler;
-    private final String[] constantTags;
+    private final String constantTagsRendered;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
         final ThreadFactory delegate = Executors.defaultThreadFactory();
@@ -142,10 +142,17 @@ public final class NonBlockingStatsDClient implements StatsDClient {
             this.prefix = "";
         }
         this.handler = errorHandler;
+
+        /* Empty list should be null for faster comparison */
         if(constantTags != null && constantTags.length == 0) {
             constantTags = null;
         }
-        this.constantTags = constantTags;
+
+        if(constantTags != null) {
+            this.constantTagsRendered = tagString(constantTags, null);
+        } else {
+            this.constantTagsRendered = null;
+        }
 
         try {
             this.clientSocket = new DatagramSocket();
@@ -178,30 +185,35 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     /**
      * Generate a suffix conveying the given tag list to the client
      */
-    String tagString(String[] tags) {
-        boolean have_call_tags = (tags != null && tags.length > 0);
-        boolean have_constant_tags = (constantTags != null && constantTags.length > 0);
-        if(!have_call_tags && !have_constant_tags) {
-            return "";
-        }
-        StringBuilder sb = new StringBuilder("|#");
-        if(have_constant_tags) {
-            for(int n=constantTags.length - 1; n>=0; n--) {
-                sb.append(constantTags[n]);
-                if(n > 0 || have_call_tags) {
-                    sb.append(",");
-                }
+    static String tagString(final String[] tags, final String tagPrefix) {
+        StringBuilder sb;
+        if(tagPrefix != null) {
+            if(tags == null || tags.length == 0) {
+                return tagPrefix;
             }
+            sb = new StringBuilder(tagPrefix);
+            sb.append(",");
+        } else {
+            if(tags == null || tags.length == 0) {
+                return "";
+            }
+            sb = new StringBuilder("|#");
         }
-        if (have_call_tags) {
-            for(int n=tags.length - 1; n>=0; n--) {
-                sb.append(tags[n]);
-                if(n > 0) {
-                    sb.append(",");
-                }
+
+        for(int n=tags.length - 1; n>=0; n--) {
+            sb.append(tags[n]);
+            if(n > 0) {
+                sb.append(",");
             }
         }
         return sb.toString();
+    }
+
+    /**
+     * Generate a suffix conveying the given tag list to the client
+     */
+    String tagString(final String[] tags) {
+        return tagString(tags, constantTagsRendered);
     }
 
     /**
