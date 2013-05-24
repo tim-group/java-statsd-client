@@ -81,6 +81,19 @@ public interface StatsDClient {
      * Convenience method equivalent to {@link #recordGaugeValue(String, int)}. 
      */
     void gauge(String aspect, int value);
+    
+    /**
+     * Records a delta on the existing named gauge value.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * 
+     * @param aspect
+     *     the name of the gauge
+     * @param delta
+     *     the delta by which the gauge should be adjusted
+     */
+    void recordGaugeDelta(String aspect, int delta);
 
     /**
      * Records an execution time in milliseconds for the specified named operation.

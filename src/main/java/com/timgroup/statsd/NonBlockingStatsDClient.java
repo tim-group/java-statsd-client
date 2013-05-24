@@ -199,6 +199,12 @@ public class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void recordGaugeValue(String aspect, int value) {
+    	if (value<0) {
+    		// Negative values are interpreted as offsets from
+    		// the current value.  Thus the value must be set to 0
+    		// before a negative value can be set.
+    		send(String.format("%s.%s:0|g", prefix, aspect));	
+    	}
         send(String.format("%s.%s:%d|g", prefix, aspect, value));
     }
 
@@ -210,6 +216,19 @@ public class NonBlockingStatsDClient implements StatsDClient {
         recordGaugeValue(aspect, value);
     }
 
+	@Override
+	public void recordGaugeDelta(String aspect, int delta) {
+		if (delta>0) {
+			send(String.format("%s.%s:+%d|g", prefix, aspect, delta));
+		}
+		else if (delta<0){
+			send(String.format("%s.%s:-%d|g", prefix, aspect, delta));
+		}
+		else {
+			// Delta of zero means nothing
+		}
+	}    
+    
     /**
      * Records an execution time in milliseconds for the specified named operation.
      * 
@@ -255,4 +274,6 @@ public class NonBlockingStatsDClient implements StatsDClient {
             handler.handle(e);
         }
     }
+
+
 }
