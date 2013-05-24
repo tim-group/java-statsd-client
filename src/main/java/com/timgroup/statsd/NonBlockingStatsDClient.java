@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  * @author Tom Denley
  *
  */
-public final class NonBlockingStatsDClient implements StatsDClient {
+public class NonBlockingStatsDClient implements StatsDClient {
 
     private static final StatsDClientErrorHandler NO_OP_HANDLER = new StatsDClientErrorHandler() {
         @Override public void handle(Exception e) { /* No-op */ }
