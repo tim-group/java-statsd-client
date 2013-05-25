@@ -222,7 +222,7 @@ public class NonBlockingStatsDClient implements StatsDClient {
 			send(String.format("%s.%s:+%d|g", prefix, aspect, delta));
 		}
 		else if (delta<0){
-			send(String.format("%s.%s:-%d|g", prefix, aspect, delta));
+			send(String.format("%s.%s:%d|g", prefix, aspect, delta));
 		}
 		else {
 			// Delta of zero means nothing
