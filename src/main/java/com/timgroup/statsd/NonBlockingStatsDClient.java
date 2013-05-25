@@ -218,6 +218,10 @@ public class NonBlockingStatsDClient implements StatsDClient {
 
 	@Override
 	public void recordGaugeDelta(String aspect, int delta) {
+		
+		// Refer to following to doc to see how statsd handles delta values:
+		// https://github.com/etsy/statsd/blob/master/docs/metric_types.md#gauges
+		
 		if (delta>0) {
 			send(String.format("%s.%s:+%d|g", prefix, aspect, delta));
 		}
