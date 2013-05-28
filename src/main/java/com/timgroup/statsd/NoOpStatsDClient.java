@@ -7,7 +7,7 @@ package com.timgroup.statsd;
  * @author Tom Denley
  *
  */
-public final class NoOpStatsDClient implements StatsDClient {
+public class NoOpStatsDClient implements StatsDClient {
     @Override public void stop() { }
     @Override public void count(String aspect, int delta) { }
     @Override public void incrementCounter(String aspect) { }
@@ -18,4 +18,5 @@ public final class NoOpStatsDClient implements StatsDClient {
     @Override public void gauge(String aspect, int value) { }
     @Override public void recordExecutionTime(String aspect, int timeInMs) { }
     @Override public void time(String aspect, int value) { }
+	@Override public void recordGaugeDelta(String aspect, int delta) { }
 }
