@@ -59,6 +59,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
         @Override public Thread newThread(Runnable r) {
             Thread result = delegate.newThread(r);
             result.setName("StatsD-" + result.getName());
+            result.setDaemon(true);
             return result;
         }
     });
