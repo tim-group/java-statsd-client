@@ -43,12 +43,14 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     private final String prefix;
     private final DatagramSocket clientSocket;
     private final StatsDClientErrorHandler handler;
+	private final boolean daemonThread;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
         final ThreadFactory delegate = Executors.defaultThreadFactory();
         @Override public Thread newThread(Runnable r) {
             Thread result = delegate.newThread(r);
             result.setName("StatsD-" + result.getName());
+            result.setDaemon(daemonThread);
             return result;
         }
     });
@@ -99,8 +101,37 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     if the client could not be started
      */
     public NonBlockingStatsDClient(String prefix, String hostname, int port, StatsDClientErrorHandler errorHandler) throws StatsDClientException {
-        this.prefix = prefix;
+    	this(prefix, hostname, port, errorHandler, false);
+    }
+    
+	/**
+	 * Create a new StatsD client communicating with a StatsD instance on the
+	 * specified host and port. All messages send via this client will have
+	 * their keys prefixed with the specified string. The new client will
+	 * attempt to open a connection to the StatsD server immediately upon
+	 * instantiation, and may throw an exception if that a connection cannot be
+	 * established. Once a client has been instantiated in this way, all
+	 * exceptions thrown during subsequent usage are passed to the specified
+	 * handler and then consumed, guaranteeing that failures in metrics will not
+	 * affect normal code execution.
+	 * 
+	 * @param prefix
+	 *            the prefix to apply to keys sent via this client
+	 * @param hostname
+	 *            the host name of the targeted StatsD server
+	 * @param port
+	 *            the port of the targeted StatsD server
+	 * @param errorHandler
+	 *            handler to use when an exception occurs during usage
+	 * @param daemonThread
+	 *            should threads be created as daemon threads
+	 * @throws StatsDClientException
+	 *             if the client could not be started
+	 */
+	public NonBlockingStatsDClient(String prefix, String hostname, int port, StatsDClientErrorHandler errorHandler, boolean daemonThread) throws StatsDClientException {
+		this.prefix = prefix;
         this.handler = errorHandler;
+        this.daemonThread = daemonThread;
         
         try {
             this.clientSocket = new DatagramSocket();
