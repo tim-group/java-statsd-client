@@ -8,6 +8,7 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
@@ -211,6 +212,32 @@ public class NonBlockingStatsDClientTest {
         
         assertThat(server.messagesReceived(), contains("my.prefix.mytime:0.123|h"));
     }
+
+    /**
+     * A regression test for <a href="https://github.com/indeedeng/java-dogstatsd-client/issues/3">this i18n number formatting bug</a>
+     * @throws Exception
+     */
+    @Test public void
+    sends_timer_to_statsd_from_locale_with_unamerican_number_formatting() throws Exception {
+
+        Locale originalDefaultLocale = Locale.getDefault();
+
+        // change the default Locale to one that uses something other than a '.' as the decimal separator (Germany uses a comma)
+        Locale.setDefault(Locale.GERMANY);
+
+        try {
+            final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+
+            client.recordExecutionTime("mytime", 123, "foo:bar", "baz");
+            server.waitForMessage();
+
+            assertThat(server.messagesReceived(), contains("my.prefix.mytime:0.123|h|#baz,foo:bar"));
+        } finally {
+            // reset the default Locale in case changing it has side-effects
+            Locale.setDefault(originalDefaultLocale);
+        }
+    }
+
 
     @Test(timeout=5000L) public void
     sends_timer_to_statsd_with_tags() throws Exception {
