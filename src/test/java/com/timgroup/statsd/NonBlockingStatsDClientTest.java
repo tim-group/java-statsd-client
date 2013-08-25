@@ -66,10 +66,10 @@ public class NonBlockingStatsDClientTest {
     sends_set_to_statsd() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
-        client.addSetElements("myset", new String[]{"test1", "test2"});
+        client.recordSetValue("myset", "test");
         server.waitForMessage();
         
-        assertThat(server.messagesReceived(), contains("my.prefix.myset:test1|s\nmy.prefix.myset:test2|s"));
+        assertThat(server.messagesReceived(), contains("my.prefix.myset:test|s"));
     }
 
     @Test(timeout=5000L) public void

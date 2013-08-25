@@ -28,8 +28,7 @@ public class Foo {
     statsd.incrementCounter("bar");
     statsd.recordGaugeValue("baz", 100);
     statsd.recordExecutionTime("bag", 25);
-    statsd.addSetElements("qux", "one");
-    statsd.addSetElements("qux", new String[] {"two", "three"});
+    statsd.recordSetValue("qux", "one");
   }
 }
 ```
