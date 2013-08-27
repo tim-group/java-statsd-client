@@ -34,17 +34,17 @@ import java.util.concurrent.TimeUnit;
  * @author Tom Denley
  *
  */
-public final class NonBlockingStatsDClient implements StatsDClient {
+public class NonBlockingStatsDClient implements StatsDClient {
 
-    private static final StatsDClientErrorHandler NO_OP_HANDLER = new StatsDClientErrorHandler() {
+	protected static final StatsDClientErrorHandler NO_OP_HANDLER = new StatsDClientErrorHandler() {
         @Override public void handle(Exception e) { /* No-op */ }
     };
 
-    private final String prefix;
-    private final DatagramSocket clientSocket;
-    private final StatsDClientErrorHandler handler;
+    protected final String prefix;
+    protected final DatagramSocket clientSocket;
+    protected final StatsDClientErrorHandler handler;
 
-    private final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
+    protected final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
         final ThreadFactory delegate = Executors.defaultThreadFactory();
         @Override public Thread newThread(Runnable r) {
             Thread result = delegate.newThread(r);
@@ -233,7 +233,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
         recordExecutionTime(aspect, value);
     }
 
-    private void send(final String message) {
+    protected void send(final String message) {
         try {
             executor.execute(new Runnable() {
                 @Override public void run() {
@@ -246,7 +246,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
         }
     }
 
-    private void blockingSend(String message) {
+    protected void blockingSend(String message) {
         try {
             final byte[] sendData = message.getBytes();
             final DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
