@@ -38,4 +38,4 @@ Contribuite
 -----
 2013-08-27 22:39:17
 1. count add rate support
-
+2. change to maven project
