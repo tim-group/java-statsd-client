@@ -1,2 +1,7 @@
 bin
 build
+target
+*.class
+profiles
+deploy
+
