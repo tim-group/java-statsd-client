@@ -121,7 +121,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * @throws StatsDClientException
      *     if the client could not be started
      */
-    public NonBlockingStatsDClient(String prefix, String hostname, int port, String[] constantTags) throws StatsDClientException {
+    public NonBlockingStatsDClient(String prefix, String hostname, int port, String... constantTags) throws StatsDClientException {
         this(prefix, hostname, port, constantTags, NO_OP_HANDLER);
     }
 
@@ -243,7 +243,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void count(String aspect, int delta, String... tags) {
+    public void count(String aspect, long delta, String... tags) {
         send(String.format("%s%s:%d|c%s", prefix, aspect, delta, tagString(tags)));
     }
 
@@ -334,15 +334,15 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordGaugeValue(String aspect, int value, String... tags) {
+    public void recordGaugeValue(String aspect, long value, String... tags) {
         send(String.format("%s%s:%d|g%s", prefix, aspect, value, tagString(tags)));
     }
 
     /**
-     * Convenience method equivalent to {@link #recordGaugeValue(String, int, String[])}. 
+     * Convenience method equivalent to {@link #recordGaugeValue(String, long, String[])}.
      */
     @Override
-    public void gauge(String aspect, int value, String... tags) {
+    public void gauge(String aspect, long value, String... tags) {
         recordGaugeValue(aspect, value, tags);
     }
 
@@ -411,15 +411,15 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordHistogramValue(String aspect, int value, String... tags) {
+    public void recordHistogramValue(String aspect, long value, String... tags) {
         send(String.format("%s%s:%d|h%s", prefix, aspect, value, tagString(tags)));
     }
 
     /**
-     * Convenience method equivalent to {@link #recordHistogramValue(String, int, String[])}. 
+     * Convenience method equivalent to {@link #recordHistogramValue(String, long, String[])}.
      */
     @Override
-    public void histogram(String aspect, int value, String... tags) {
+    public void histogram(String aspect, long value, String... tags) {
         recordHistogramValue(aspect, value, tags);
     }
 
