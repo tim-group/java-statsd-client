@@ -214,7 +214,7 @@ public class NonBlockingStatsDClientTest {
         client.recordExecutionTime("mytime", 123);
         server.waitForMessage();
 
-        assertThat(server.messagesReceived(), contains("my.prefix.mytime:0.123|h"));
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms"));
     }
 
     /**
@@ -235,7 +235,7 @@ public class NonBlockingStatsDClientTest {
             client.recordExecutionTime("mytime", 123, "foo:bar", "baz");
             server.waitForMessage();
 
-            assertThat(server.messagesReceived(), contains("my.prefix.mytime:0.123|h|#baz,foo:bar"));
+            assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms|#baz,foo:bar"));
         } finally {
             // reset the default Locale in case changing it has side-effects
             Locale.setDefault(originalDefaultLocale);
@@ -250,7 +250,7 @@ public class NonBlockingStatsDClientTest {
         client.recordExecutionTime("mytime", 123, "foo:bar", "baz");
         server.waitForMessage();
 
-        assertThat(server.messagesReceived(), contains("my.prefix.mytime:0.123|h|#baz,foo:bar"));
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms|#baz,foo:bar"));
     }
 
 
