@@ -37,7 +37,7 @@ public interface StatsDClient {
      * @param tags
      *     array of tags to be added to the data
      */
-    void count(String aspect, int delta, String... tags);
+    void count(String aspect, long delta, String... tags);
 
     /**
      * Increments the specified counter by one.
@@ -108,12 +108,12 @@ public interface StatsDClient {
      * @param value
      *     the new reading of the gauge
      */
-    void recordGaugeValue(String aspect, int value, String... tags);
+    void recordGaugeValue(String aspect, long value, String... tags);
 
     /**
-     * Convenience method equivalent to {@link #recordGaugeValue(String, int, String[])}.
+     * Convenience method equivalent to {@link #recordGaugeValue(String, long, String[])}.
      */
-    void gauge(String aspect, int value, String... tags);
+    void gauge(String aspect, long value, String... tags);
 
     /**
      * Records an execution time in milliseconds for the specified named operation.
@@ -171,11 +171,11 @@ public interface StatsDClient {
      * @param tags
      *     array of tags to be added to the data
      */
-    void recordHistogramValue(String aspect, int value, String... tags);
+    void recordHistogramValue(String aspect, long value, String... tags);
 
     /**
-     * Convenience method equivalent to {@link #recordHistogramValue(String, int, String[])}.
+     * Convenience method equivalent to {@link #recordHistogramValue(String, long, String[])}.
      */
-    void histogram(String aspect, int value, String... tags);
+    void histogram(String aspect, long value, String... tags);
 
 }
