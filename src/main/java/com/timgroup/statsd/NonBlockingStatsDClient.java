@@ -374,7 +374,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void recordExecutionTime(String aspect, long timeInMs, String... tags) {
-        recordHistogramValue(aspect, (timeInMs * 0.001), tags);
+        send(String.format("%s%s:%d|ms%s", prefix, aspect, timeInMs, tagString(tags)));
     }
 
     /**
