@@ -72,6 +72,28 @@ public class NonBlockingStatsDClientTest {
         assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms"));
     }
 
+    @Test(timeout=5000L) public void
+    stopTimer_sends_timer_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+
+        long startTime = System.currentTimeMillis();
+        client.stopTimer("mytime", startTime);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:0|ms"));
+    }
+
+    @Test(timeout=5000L) public void
+    stopTimer_tolerates_out_of_range_times_sends_timer_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+
+        long startTime = Integer.MAX_VALUE;
+        client.stopTimer("mytime", startTime);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:" + Integer.MAX_VALUE + "|ms"));
+    }
+
     private static final class DummyStatsDServer {
         private final List<String> messagesReceived = new ArrayList<String>();
         private final DatagramSocket server;
