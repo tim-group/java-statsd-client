@@ -209,6 +209,29 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     public void gauge(String aspect, int value) {
         recordGaugeValue(aspect, value);
     }
+    
+    /**
+     * Adds a value to the specified named set.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * @param aspect
+     *     the name of the set
+     * @param value
+     *     the value to be added to the set
+     */
+    @Override
+    public void recordSetValue(String aspect, String value) {
+    	send(String.format("%s.%s:%s|s", prefix, aspect, value));
+    }
+
+    /**
+     * Convenience method equivalent to {@link #recordSetValue(String, String)}. 
+     */
+    @Override
+    public void set(String aspect, String value) {
+    	recordSetValue(aspect, value);
+    }
 
     /**
      * Records an execution time in milliseconds for the specified named operation.

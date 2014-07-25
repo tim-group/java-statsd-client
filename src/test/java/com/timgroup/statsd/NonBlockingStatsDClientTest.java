@@ -61,6 +61,16 @@ public class NonBlockingStatsDClientTest {
         
         assertThat(server.messagesReceived(), contains("my.prefix.mygauge:423|g"));
     }
+    
+    @Test(timeout=5000L) public void
+    sends_set_to_statsd() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+        
+        client.recordSetValue("myset", "test");
+        server.waitForMessage();
+        
+        assertThat(server.messagesReceived(), contains("my.prefix.myset:test|s"));
+    }
 
     @Test(timeout=5000L) public void
     sends_timer_to_statsd() throws Exception {
