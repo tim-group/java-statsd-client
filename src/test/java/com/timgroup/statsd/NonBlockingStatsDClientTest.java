@@ -2,6 +2,7 @@ package com.timgroup.statsd;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
+import static org.hamcrest.Matchers.startsWith;
 
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -79,6 +80,30 @@ public final class NonBlockingStatsDClientTest {
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms"));
+    }
+
+    @Test(timeout=5000L) public void
+    allows_empty_prefix() {
+        final NonBlockingStatsDClient emptyPrefixClient = new NonBlockingStatsDClient(" ", "localhost", STATSD_SERVER_PORT);
+        try {
+            emptyPrefixClient.count("mycount", 24);
+            server.waitForMessage();
+        } finally {
+            emptyPrefixClient.stop();
+        }
+        assertThat(server.messagesReceived(), contains(startsWith("mycount:")));
+    }
+
+    @Test(timeout=5000L) public void
+    allows_null_prefix() {
+        final NonBlockingStatsDClient nullPrefixClient = new NonBlockingStatsDClient(null, "localhost", STATSD_SERVER_PORT);
+        try {
+            nullPrefixClient.count("mycount", 24);
+            server.waitForMessage();
+        } finally {
+            nullPrefixClient.stop();
+        }
+        assertThat(server.messagesReceived(), contains(startsWith("mycount:")));
     }
 
     private static final class DummyStatsDServer {

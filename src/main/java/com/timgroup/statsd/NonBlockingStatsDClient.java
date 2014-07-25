@@ -64,7 +64,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      * that failures in metrics will not affect normal code execution.
      * 
      * @param prefix
-     *     the prefix to apply to keys sent via this client
+     *     the prefix to apply to keys sent via this client (can be null or empty for no prefix)
      * @param hostname
      *     the host name of the targeted StatsD server
      * @param port
@@ -88,7 +88,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      * not affect normal code execution.
      * 
      * @param prefix
-     *     the prefix to apply to keys sent via this client
+     *     the prefix to apply to keys sent via this client (can be null or empty for no prefix)
      * @param hostname
      *     the host name of the targeted StatsD server
      * @param port
@@ -99,7 +99,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      *     if the client could not be started
      */
     public NonBlockingStatsDClient(String prefix, String hostname, int port, StatsDClientErrorHandler errorHandler) throws StatsDClientException {
-        this.prefix = prefix;
+        this.prefix = (prefix == null || prefix.trim().isEmpty()) ? "" : (prefix.trim() + ".");
         this.handler = errorHandler;
         
         try {
@@ -196,7 +196,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     }
 
     private String messageFor(String aspect, Object value, String type) {
-        return String.format("%s.%s:%s|%s", prefix, aspect, value, type);
+        return String.format("%s%s:%s|%s", prefix, aspect, value, type);
     }
 
     private void send(final String message) {
