@@ -28,10 +28,10 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_counter_value_to_statsd() throws Exception {
-        client.count("mycount", 24);
+        client.count("mycount", Long.MAX_VALUE);
         server.waitForMessage();
         
-        assertThat(server.messagesReceived(), contains("my.prefix.mycount:24|c"));
+        assertThat(server.messagesReceived(), contains("my.prefix.mycount:9223372036854775807|c"));
     }
 
     @Test(timeout=5000L) public void
@@ -52,7 +52,7 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_gauge_to_statsd() throws Exception {
-        client.recordGaugeValue("mygauge", 423);
+        client.recordGaugeValue("mygauge", 423L);
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mygauge:423|g"));
@@ -60,7 +60,7 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_negagive_gauge_to_statsd_by_resetting_to_zero_first() throws Exception {
-        client.recordGaugeValue("mygauge", -423);
+        client.recordGaugeValue("mygauge", -423L);
         server.waitForMessage();
 
         assertThat(server.messagesReceived(), contains("my.prefix.mygauge:0|g\nmy.prefix.mygauge:-423|g"));
@@ -68,7 +68,7 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_gauge_positive_delta_to_statsd() throws Exception {
-        client.recordGaugeDelta("mygauge", 423);
+        client.recordGaugeDelta("mygauge", 423L);
         server.waitForMessage();
 
         assertThat(server.messagesReceived(), contains("my.prefix.mygauge:+423|g"));
@@ -76,7 +76,7 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_gauge_negative_delta_to_statsd() throws Exception {
-        client.recordGaugeDelta("mygauge", -423);
+        client.recordGaugeDelta("mygauge", -423L);
         server.waitForMessage();
 
         assertThat(server.messagesReceived(), contains("my.prefix.mygauge:-423|g"));
@@ -84,7 +84,7 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_gauge_zero_delta_to_statsd() throws Exception {
-        client.recordGaugeDelta("mygauge", 0);
+        client.recordGaugeDelta("mygauge", 0L);
         server.waitForMessage();
 
         assertThat(server.messagesReceived(), contains("my.prefix.mygauge:+0|g"));
@@ -100,7 +100,7 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_timer_to_statsd() throws Exception {
-        client.recordExecutionTime("mytime", 123);
+        client.recordExecutionTime("mytime", 123L);
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms"));
@@ -110,7 +110,7 @@ public final class NonBlockingStatsDClientTest {
     allows_empty_prefix() {
         final NonBlockingStatsDClient emptyPrefixClient = new NonBlockingStatsDClient(" ", "localhost", STATSD_SERVER_PORT);
         try {
-            emptyPrefixClient.count("mycount", 24);
+            emptyPrefixClient.count("mycount", 24L);
             server.waitForMessage();
         } finally {
             emptyPrefixClient.stop();
@@ -122,7 +122,7 @@ public final class NonBlockingStatsDClientTest {
     allows_null_prefix() {
         final NonBlockingStatsDClient nullPrefixClient = new NonBlockingStatsDClient(null, "localhost", STATSD_SERVER_PORT);
         try {
-            nullPrefixClient.count("mycount", 24);
+            nullPrefixClient.count("mycount", 24L);
             server.waitForMessage();
         } finally {
             nullPrefixClient.stop();

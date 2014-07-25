@@ -33,7 +33,7 @@ public interface StatsDClient {
      * @param delta
      *     the amount to adjust the counter by
      */
-    void count(String aspect, int delta);
+    void count(String aspect, long delta);
 
     /**
      * Increments the specified counter by one.
@@ -46,7 +46,7 @@ public interface StatsDClient {
     void incrementCounter(String aspect);
 
     /**
-     * Convenience method equivalent to {@link #incrementCounter(String)}. 
+     * Convenience method equivalent to {@link #incrementCounter(String)}.
      */
     void increment(String aspect);
 
@@ -61,7 +61,7 @@ public interface StatsDClient {
     void decrementCounter(String aspect);
 
     /**
-     * Convenience method equivalent to {@link #decrementCounter(String)}. 
+     * Convenience method equivalent to {@link #decrementCounter(String)}.
      */
     void decrement(String aspect);
 
@@ -75,7 +75,7 @@ public interface StatsDClient {
      * @param value
      *     the new reading of the gauge
      */
-    void recordGaugeValue(String aspect, int value);
+    void recordGaugeValue(String aspect, long value);
 
     /**
      * Records a change in the value of the specified named gauge.
@@ -87,12 +87,12 @@ public interface StatsDClient {
      * @param delta
      *     the +/- delta to apply to the gauge
      */
-    void recordGaugeDelta(String aspect, int delta);
+    void recordGaugeDelta(String aspect, long delta);
 
     /**
-     * Convenience method equivalent to {@link #recordGaugeValue(String, int)}. 
+     * Convenience method equivalent to {@link #recordGaugeValue(String, long)}.
      */
-    void gauge(String aspect, int value);
+    void gauge(String aspect, long value);
 
     /**
      * StatsD supports counting unique occurrences of events between flushes, Call this method to records an occurrence
@@ -122,11 +122,11 @@ public interface StatsDClient {
      * @param timeInMs
      *     the time in milliseconds
      */
-    void recordExecutionTime(String aspect, int timeInMs);
+    void recordExecutionTime(String aspect, long timeInMs);
 
     /**
-     * Convenience method equivalent to {@link #recordExecutionTime(String, int)}. 
+     * Convenience method equivalent to {@link #recordExecutionTime(String, long)}.
      */
-    void time(String aspect, int value);
+    void time(String aspect, long value);
 
 }

@@ -141,7 +141,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      *     the amount to adjust the counter by
      */
     @Override
-    public void count(String aspect, int delta) {
+    public void count(String aspect, long delta) {
         send(messageFor(aspect, delta, "c"));
     }
 
@@ -156,7 +156,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      *     the new reading of the gauge
      */
     @Override
-    public void recordGaugeValue(String aspect, int value) {
+    public void recordGaugeValue(String aspect, long value) {
         String message = messageFor(aspect, value, "g");
         if (value < 0) {
             message = messageFor(aspect, 0, "g") + "\n" + message;
@@ -164,7 +164,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         send(message);
     }
 
-    public void recordGaugeDelta(String aspect, int value) {
+    public void recordGaugeDelta(String aspect, long value) {
         send(messageFor(aspect, (value < 0) ? value : ("+" + value), "g"));
     }
 
@@ -195,7 +195,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      *     the time in milliseconds
      */
     @Override
-    public void recordExecutionTime(String aspect, int timeInMs) {
+    public void recordExecutionTime(String aspect, long timeInMs) {
         send(messageFor(aspect, timeInMs, "ms"));
     }
 

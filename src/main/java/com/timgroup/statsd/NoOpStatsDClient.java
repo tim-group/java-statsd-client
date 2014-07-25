@@ -9,9 +9,9 @@ package com.timgroup.statsd;
  */
 public final class NoOpStatsDClient extends ConvenienceMethodProvidingStatsDClient {
     @Override public void stop() { }
-    @Override public void count(String aspect, int delta) { }
-    @Override public void recordGaugeValue(String aspect, int value) { }
-    @Override public void recordGaugeDelta(String aspect, int delta) { }
+    @Override public void count(String aspect, long delta) { }
+    @Override public void recordGaugeValue(String aspect, long value) { }
+    @Override public void recordGaugeDelta(String aspect, long delta) { }
     @Override public void recordSetEvent(String aspect, String value) { }
-    @Override public void recordExecutionTime(String aspect, int timeInMs) { }
+    @Override public void recordExecutionTime(String aspect, long timeInMs) { }
 }

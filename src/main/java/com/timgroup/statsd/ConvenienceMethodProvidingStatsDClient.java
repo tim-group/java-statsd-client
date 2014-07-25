@@ -7,7 +7,7 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
     }
 
     /**
-     * Convenience method equivalent to {@link #count(String, int)} with a value of 1. 
+     * Convenience method equivalent to {@link #count(String, long)} with a value of 1.
      */
     @Override
     public final void incrementCounter(String aspect) {
@@ -15,7 +15,7 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
     }
 
     /**
-     * Convenience method equivalent to {@link #incrementCounter(String)}. 
+     * Convenience method equivalent to {@link #incrementCounter(String)}.
      */
     @Override
     public final void increment(String aspect) {
@@ -23,7 +23,7 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
     }
 
     /**
-     * Convenience method equivalent to {@link #count(String, int)} with a value of -1. 
+     * Convenience method equivalent to {@link #count(String, long)} with a value of -1.
      */
     @Override
     public final void decrementCounter(String aspect) {
@@ -31,7 +31,7 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
     }
 
     /**
-     * Convenience method equivalent to {@link #decrementCounter(String)}. 
+     * Convenience method equivalent to {@link #decrementCounter(String)}.
      */
     @Override
     public final void decrement(String aspect) {
@@ -39,10 +39,10 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
     }
 
     /**
-     * Convenience method equivalent to {@link #recordGaugeValue(String, int)}. 
+     * Convenience method equivalent to {@link #recordGaugeValue(String, long)}.
      */
     @Override
-    public final void gauge(String aspect, int value) {
+    public final void gauge(String aspect, long value) {
         recordGaugeValue(aspect, value);
     }
 
@@ -55,10 +55,10 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
     }
 
     /**
-     * Convenience method equivalent to {@link #recordExecutionTime(String, int)}. 
+     * Convenience method equivalent to {@link #recordExecutionTime(String, long)}.
      */
     @Override
-    public final void time(String aspect, int timeInMs) {
+    public final void time(String aspect, long timeInMs) {
         recordExecutionTime(aspect, timeInMs);
     }
 
