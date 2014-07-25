@@ -81,7 +81,7 @@ public interface StatsDClient {
      * Convenience method equivalent to {@link #recordGaugeValue(String, int)}. 
      */
     void gauge(String aspect, int value);
-    
+
     /**
      * Adds a value to the specified named set.
      * 

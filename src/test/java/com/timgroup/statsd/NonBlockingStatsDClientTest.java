@@ -61,7 +61,7 @@ public class NonBlockingStatsDClientTest {
         
         assertThat(server.messagesReceived(), contains("my.prefix.mygauge:423|g"));
     }
-    
+
     @Test(timeout=5000L) public void
     sends_set_to_statsd() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
@@ -99,14 +99,14 @@ public class NonBlockingStatsDClientTest {
                 }
             }).start();
         }
-        
+
         public void waitForMessage() {
             while (messagesReceived.isEmpty()) {
                 try {
                     Thread.sleep(50L);
                 } catch (InterruptedException e) {}}
         }
-        
+
         public List<String> messagesReceived() {
             return new ArrayList<String>(messagesReceived);
         }

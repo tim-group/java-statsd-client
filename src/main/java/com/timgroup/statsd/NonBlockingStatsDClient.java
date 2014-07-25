@@ -209,7 +209,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     public void gauge(String aspect, int value) {
         recordGaugeValue(aspect, value);
     }
-    
+
     /**
      * Adds a value to the specified named set.
      * 
@@ -222,7 +222,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void recordSetValue(String aspect, String value) {
-    	send(String.format("%s.%s:%s|s", prefix, aspect, value));
+        send(String.format("%s.%s:%s|s", prefix, aspect, value));
     }
 
     /**
@@ -230,7 +230,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void set(String aspect, String value) {
-    	recordSetValue(aspect, value);
+        recordSetValue(aspect, value);
     }
 
     /**
