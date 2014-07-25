@@ -142,7 +142,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void count(String aspect, int delta) {
-        send(String.format("%s.%s:%d|c", prefix, aspect, delta));
+        send(messageFor(aspect, delta, "c"));
     }
 
     /**
@@ -157,9 +157,9 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordGaugeValue(String aspect, int value) {
-        String message = String.format("%s.%s:%d|g", prefix, aspect, value);
+        String message = messageFor(aspect, value, "g");
         if (value < 0) {
-            message = String.format("%s.%s:%d|g\n", prefix, aspect, 0) + message;
+            message = messageFor(aspect, 0, "g") + "\n" + message;
         }
         send(message);
     }
@@ -177,7 +177,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordSetEvent(String aspect, String eventName) {
-        send(String.format("%s.%s:%s|s", prefix, aspect, eventName));
+        send(messageFor(aspect, eventName, "s"));
     }
 
     /**
@@ -192,7 +192,11 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordExecutionTime(String aspect, int timeInMs) {
-        send(String.format("%s.%s:%d|ms", prefix, aspect, timeInMs));
+        send(messageFor(aspect, timeInMs, "ms"));
+    }
+
+    private String messageFor(String aspect, Object value, String type) {
+        return String.format("%s.%s:%s|%s", prefix, aspect, value, type);
     }
 
     private void send(final String message) {
