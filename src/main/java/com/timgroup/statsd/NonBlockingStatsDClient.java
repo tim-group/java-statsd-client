@@ -157,7 +157,11 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordGaugeValue(String aspect, int value) {
-        send(String.format("%s.%s:%d|g", prefix, aspect, value));
+        String message = String.format("%s.%s:%d|g", prefix, aspect, value);
+        if (value < 0) {
+            message = String.format("%s.%s:%d|g\n", prefix, aspect, 0) + message;
+        }
+        send(message);
     }
 
     /**

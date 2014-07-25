@@ -63,6 +63,16 @@ public final class NonBlockingStatsDClientTest {
     }
 
     @Test(timeout=5000L) public void
+    sends_negagive_gauge_to_statsd_by_resetting_to_zero_first() throws Exception {
+        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
+
+        client.recordGaugeValue("mygauge", -423);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mygauge:0|g\nmy.prefix.mygauge:-423|g"));
+    }
+
+    @Test(timeout=5000L) public void
     sends_set_to_statsd() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
