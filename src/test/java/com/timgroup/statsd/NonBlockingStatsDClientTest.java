@@ -12,7 +12,7 @@ import java.util.List;
 import org.junit.After;
 import org.junit.Test;
 
-public class NonBlockingStatsDClientTest {
+public final class NonBlockingStatsDClientTest {
 
     private static final int STATSD_SERVER_PORT = 17254;
     private final NonBlockingStatsDClient client = new NonBlockingStatsDClient("my.prefix", "localhost", STATSD_SERVER_PORT);
