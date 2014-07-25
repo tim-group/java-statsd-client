@@ -253,8 +253,8 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * Convenience method equivalent to {@link #recordExecutionTime(String, int)}. 
      */
     @Override
-    public void time(String aspect, int value) {
-        recordExecutionTime(aspect, value);
+    public void time(String aspect, int timeInMs) {
+        recordExecutionTime(aspect, timeInMs);
     }
 
     private void send(final String message) {
