@@ -15,17 +15,18 @@ import org.junit.Test;
 public final class NonBlockingStatsDClientTest {
 
     private static final int STATSD_SERVER_PORT = 17254;
+
     private final NonBlockingStatsDClient client = new NonBlockingStatsDClient("my.prefix", "localhost", STATSD_SERVER_PORT);
+    private final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
 
     @After
     public void stop() throws Exception {
         client.stop();
+        server.stop();
     }
 
     @Test(timeout=5000L) public void
     sends_counter_value_to_statsd() throws Exception {
-        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
-        
         client.count("mycount", 24);
         server.waitForMessage();
         
@@ -34,8 +35,6 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_counter_increment_to_statsd() throws Exception {
-        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
-        
         client.incrementCounter("myinc");
         server.waitForMessage();
         
@@ -44,8 +43,6 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_counter_decrement_to_statsd() throws Exception {
-        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
-        
         client.decrementCounter("mydec");
         server.waitForMessage();
         
@@ -54,8 +51,6 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_gauge_to_statsd() throws Exception {
-        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
-        
         client.recordGaugeValue("mygauge", 423);
         server.waitForMessage();
         
@@ -64,8 +59,6 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_negagive_gauge_to_statsd_by_resetting_to_zero_first() throws Exception {
-        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
-
         client.recordGaugeValue("mygauge", -423);
         server.waitForMessage();
 
@@ -74,8 +67,6 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_set_to_statsd() throws Exception {
-        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
-        
         client.recordSetEvent("myset", "test");
         server.waitForMessage();
         
@@ -84,8 +75,6 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_timer_to_statsd() throws Exception {
-        final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
-        
         client.recordExecutionTime("mytime", 123);
         server.waitForMessage();
         
@@ -96,25 +85,33 @@ public final class NonBlockingStatsDClientTest {
         private final List<String> messagesReceived = new ArrayList<String>();
         private final DatagramSocket server;
 
-        public DummyStatsDServer(int port) throws SocketException {
-            server = new DatagramSocket(port);
+        public DummyStatsDServer(int port) {
+            try {
+                server = new DatagramSocket(port);
+            } catch (SocketException e) {
+                throw new IllegalStateException(e);
+            }
             new Thread(new Runnable() {
                 @Override public void run() {
                     try {
                         final DatagramPacket packet = new DatagramPacket(new byte[256], 256);
                         server.receive(packet);
                         messagesReceived.add(new String(packet.getData()).trim());
-                        server.close();
                     } catch (Exception e) { }
                 }
             }).start();
+        }
+
+        public void stop() {
+            server.close();
         }
 
         public void waitForMessage() {
             while (messagesReceived.isEmpty()) {
                 try {
                     Thread.sleep(50L);
-                } catch (InterruptedException e) {}}
+                } catch (InterruptedException e) {}
+            }
         }
 
         public List<String> messagesReceived() {
