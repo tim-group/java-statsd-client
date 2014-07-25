@@ -7,17 +7,10 @@ package com.timgroup.statsd;
  * @author Tom Denley
  *
  */
-public final class NoOpStatsDClient implements StatsDClient {
+public final class NoOpStatsDClient extends ConvenienceMethodProvidingStatsDClient {
     @Override public void stop() { }
     @Override public void count(String aspect, int delta) { }
-    @Override public void incrementCounter(String aspect) { }
-    @Override public void increment(String aspect) { }
-    @Override public void decrementCounter(String aspect) { }
-    @Override public void decrement(String aspect) { }
     @Override public void recordGaugeValue(String aspect, int value) { }
-    @Override public void gauge(String aspect, int value) { }
     @Override public void recordSetEvent(String aspect, String value) { }
-    @Override public void set(String aspect, String value) { }
     @Override public void recordExecutionTime(String aspect, int timeInMs) { }
-    @Override public void time(String aspect, int value) { }
 }

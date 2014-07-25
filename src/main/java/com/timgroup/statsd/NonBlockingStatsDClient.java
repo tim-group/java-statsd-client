@@ -34,7 +34,7 @@ import java.util.concurrent.TimeUnit;
  * @author Tom Denley
  *
  */
-public final class NonBlockingStatsDClient implements StatsDClient {
+public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingStatsDClient {
 
     private static final StatsDClientErrorHandler NO_OP_HANDLER = new StatsDClientErrorHandler() {
         @Override public void handle(Exception e) { /* No-op */ }
@@ -146,48 +146,6 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     }
 
     /**
-     * Increments the specified counter by one.
-     * 
-     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
-     * @param aspect
-     *     the name of the counter to increment
-     */
-    @Override
-    public void incrementCounter(String aspect) {
-        count(aspect, 1);
-    }
-
-    /**
-     * Convenience method equivalent to {@link #incrementCounter(String)}. 
-     */
-    @Override
-    public void increment(String aspect) {
-        incrementCounter(aspect);
-    }
-
-    /**
-     * Decrements the specified counter by one.
-     * 
-     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
-     * @param aspect
-     *     the name of the counter to decrement
-     */
-    @Override
-    public void decrementCounter(String aspect) {
-        count(aspect, -1);
-    }
-
-    /**
-     * Convenience method equivalent to {@link #decrementCounter(String)}. 
-     */
-    @Override
-    public void decrement(String aspect) {
-        decrementCounter(aspect);
-    }
-
-    /**
      * Records the latest fixed value for the specified named gauge.
      * 
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
@@ -200,14 +158,6 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     @Override
     public void recordGaugeValue(String aspect, int value) {
         send(String.format("%s.%s:%d|g", prefix, aspect, value));
-    }
-
-    /**
-     * Convenience method equivalent to {@link #recordGaugeValue(String, int)}. 
-     */
-    @Override
-    public void gauge(String aspect, int value) {
-        recordGaugeValue(aspect, value);
     }
 
     /**
@@ -227,14 +177,6 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     }
 
     /**
-     * Convenience method equivalent to {@link #recordSetEvent(String, String)}.
-     */
-    @Override
-    public void set(String aspect, String eventName) {
-        recordSetEvent(aspect, eventName);
-    }
-
-    /**
      * Records an execution time in milliseconds for the specified named operation.
      * 
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
@@ -247,14 +189,6 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     @Override
     public void recordExecutionTime(String aspect, int timeInMs) {
         send(String.format("%s.%s:%d|ms", prefix, aspect, timeInMs));
-    }
-
-    /**
-     * Convenience method equivalent to {@link #recordExecutionTime(String, int)}. 
-     */
-    @Override
-    public void time(String aspect, int timeInMs) {
-        recordExecutionTime(aspect, timeInMs);
     }
 
     private void send(final String message) {
