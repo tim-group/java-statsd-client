@@ -1,5 +1,7 @@
 package com.timgroup.statsd;
 
+import static java.lang.Long.valueOf;
+import static junit.framework.Assert.assertTrue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.startsWith;
@@ -9,7 +11,10 @@ import java.net.DatagramSocket;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.hamcrest.Matchers;
 import org.junit.After;
 import org.junit.Test;
 
@@ -104,6 +109,33 @@ public final class NonBlockingStatsDClientTest {
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_timer_to_statsd_based_on_specified_start_time_to_now() throws Exception {
+        final long startTime = System.currentTimeMillis() - 1000L;
+
+        final long beforeCompletionTime = System.currentTimeMillis();
+        client.recordExecutionTimeToNow("mytime", startTime);
+        final long afterCompletionTime = System.currentTimeMillis();
+
+        server.waitForMessage();
+
+        long maxExpectedValue = afterCompletionTime - startTime;
+        long minExpectedValue = beforeCompletionTime - startTime;
+        final String messageReceived = server.messagesReceived().get(0);
+        final Matcher resultMatcher = Pattern.compile(".*:(\\d+)\\|ms").matcher(messageReceived);
+        assertTrue(messageReceived, resultMatcher.matches());
+        assertThat(valueOf(resultMatcher.group(1)), Matchers.greaterThanOrEqualTo(minExpectedValue));
+        assertThat(valueOf(resultMatcher.group(1)), Matchers.lessThanOrEqualTo(maxExpectedValue));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_timer_of_zero_to_statsd_based_on_specified_start_time_in_the_future() throws Exception {
+        client.recordExecutionTimeToNow("mytime", System.currentTimeMillis() + 100000L);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:0|ms"));
     }
 
     @Test(timeout=5000L) public void

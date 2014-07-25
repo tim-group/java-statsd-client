@@ -114,15 +114,29 @@ public interface StatsDClient {
 
     /**
      * Records an execution time in milliseconds for the specified named operation.
-     * 
+     *
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
+     *
      * @param aspect
      *     the name of the timed operation
      * @param timeInMs
      *     the time in milliseconds
      */
     void recordExecutionTime(String aspect, long timeInMs);
+
+    /**
+     * Records an execution time in milliseconds for the specified named operation. The execution
+     * time is calculated as the delta between the specified start time and the current system
+     * time (using {@link System#currentTimeMillis()})
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the timed operation
+     * @param timeInMs
+     *     the system time, in millis, at the start of the operation that has just completed
+     */
+    void recordExecutionTimeToNow(String aspect, long systemTimeMillisAtStart);
 
     /**
      * Convenience method equivalent to {@link #recordExecutionTime(String, long)}.
