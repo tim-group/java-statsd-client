@@ -211,26 +211,27 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     }
 
     /**
-     * Adds a value to the specified named set.
+     * StatsD supports counting unique occurrences of events between flushes, Call this method to records an occurrence
+     * of the specified named event.
      * 
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
      * 
      * @param aspect
      *     the name of the set
-     * @param value
+     * @param eventName
      *     the value to be added to the set
      */
     @Override
-    public void recordSetValue(String aspect, String value) {
-        send(String.format("%s.%s:%s|s", prefix, aspect, value));
+    public void recordSetEvent(String aspect, String eventName) {
+        send(String.format("%s.%s:%s|s", prefix, aspect, eventName));
     }
 
     /**
-     * Convenience method equivalent to {@link #recordSetValue(String, String)}. 
+     * Convenience method equivalent to {@link #recordSetEvent(String, String)}.
      */
     @Override
-    public void set(String aspect, String value) {
-        recordSetValue(aspect, value);
+    public void set(String aspect, String eventName) {
+        recordSetEvent(aspect, eventName);
     }
 
     /**

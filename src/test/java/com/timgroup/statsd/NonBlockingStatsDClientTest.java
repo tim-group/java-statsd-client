@@ -66,7 +66,7 @@ public final class NonBlockingStatsDClientTest {
     sends_set_to_statsd() throws Exception {
         final DummyStatsDServer server = new DummyStatsDServer(STATSD_SERVER_PORT);
         
-        client.recordSetValue("myset", "test");
+        client.recordSetEvent("myset", "test");
         server.waitForMessage();
         
         assertThat(server.messagesReceived(), contains("my.prefix.myset:test|s"));

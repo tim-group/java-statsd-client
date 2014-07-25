@@ -83,21 +83,22 @@ public interface StatsDClient {
     void gauge(String aspect, int value);
 
     /**
-     * Adds a value to the specified named set.
+     * StatsD supports counting unique occurrences of events between flushes, Call this method to records an occurrence
+     * of the specified named event.
      * 
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
      * 
      * @param aspect
      *     the name of the set
-     * @param value
+     * @param eventName
      *     the value to be added to the set
      */
-    void recordSetValue(String aspect, String value);
+    void recordSetEvent(String aspect, String eventName);
 
     /**
-     * Convenience method equivalent to {@link #recordSetValue(String, String)}. 
+     * Convenience method equivalent to {@link #recordSetEvent(String, String)}.
      */
-    void set(String aspect, String element);
+    void set(String aspect, String eventName);
 
     /**
      * Records an execution time in milliseconds for the specified named operation.
