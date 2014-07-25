@@ -75,7 +75,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     public NonBlockingStatsDClient(String prefix, String hostname, int port) throws StatsDClientException {
         this(prefix, hostname, port, NO_OP_HANDLER);
     }
-    
+
     /**
      * Create a new StatsD client communicating with a StatsD instance on the
      * specified host and port. All messages send via this client will have
