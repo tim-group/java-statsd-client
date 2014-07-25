@@ -49,6 +49,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         @Override public Thread newThread(Runnable r) {
             Thread result = delegate.newThread(r);
             result.setName("StatsD-" + result.getName());
+            result.setDaemon(true);
             return result;
         }
     });
