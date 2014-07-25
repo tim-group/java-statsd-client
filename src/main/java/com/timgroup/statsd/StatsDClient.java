@@ -78,6 +78,18 @@ public interface StatsDClient {
     void recordGaugeValue(String aspect, int value);
 
     /**
+     * Records a change in the value of the specified named gauge.
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the gauge
+     * @param delta
+     *     the +/- delta to apply to the gauge
+     */
+    void recordGaugeDelta(String aspect, int delta);
+
+    /**
      * Convenience method equivalent to {@link #recordGaugeValue(String, int)}. 
      */
     void gauge(String aspect, int value);

@@ -164,6 +164,10 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         send(message);
     }
 
+    public void recordGaugeDelta(String aspect, int value) {
+        send(messageFor(aspect, (value < 0) ? value : ("+" + value), "g"));
+    }
+
     /**
      * StatsD supports counting unique occurrences of events between flushes, Call this method to records an occurrence
      * of the specified named event.

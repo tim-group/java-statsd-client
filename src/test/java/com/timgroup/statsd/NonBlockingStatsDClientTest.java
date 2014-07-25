@@ -67,6 +67,30 @@ public final class NonBlockingStatsDClientTest {
     }
 
     @Test(timeout=5000L) public void
+    sends_gauge_positive_delta_to_statsd() throws Exception {
+        client.recordGaugeDelta("mygauge", 423);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mygauge:+423|g"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_gauge_negative_delta_to_statsd() throws Exception {
+        client.recordGaugeDelta("mygauge", -423);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mygauge:-423|g"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_gauge_zero_delta_to_statsd() throws Exception {
+        client.recordGaugeDelta("mygauge", 0);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mygauge:+0|g"));
+    }
+
+    @Test(timeout=5000L) public void
     sends_set_to_statsd() throws Exception {
         client.recordSetEvent("myset", "test");
         server.waitForMessage();
