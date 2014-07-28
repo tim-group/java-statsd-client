@@ -6,6 +6,11 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
         super();
     }
 
+    @Override
+    public final void count(String aspect, long delta) {
+        count(aspect, delta, 1.0);
+    }
+
     /**
      * Convenience method equivalent to {@link #count(String, long)} with a value of 1.
      */

@@ -40,6 +40,14 @@ public final class NonBlockingStatsDClientTest {
     }
 
     @Test(timeout=5000L) public void
+    sends_counter_value_with_rate_to_statsd() throws Exception {
+        client.count("mycount", Long.MAX_VALUE, 0.00024);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mycount:9223372036854775807|c@0.000240"));
+    }
+
+    @Test(timeout=5000L) public void
     sends_counter_increment_to_statsd() throws Exception {
         client.incrementCounter("myinc");
         server.waitForMessage();

@@ -37,6 +37,21 @@ public interface StatsDClient {
     void count(String aspect, long delta);
 
     /**
+     * Adjusts the specified counter by a given delta.
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the counter to adjust
+     * @param delta
+     *     the amount to adjust the counter by
+     * @param sampleRate
+     *     the sampling rate being employed. For example, a rate of 0.1 would tell StatsD that this counter is being sent
+     *     sampled every 1/10th of the time.
+     */
+    void count(String aspect, long delta, double sampleRate);
+
+    /**
      * Increments the specified counter by one.
      * 
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>

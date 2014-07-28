@@ -140,10 +140,13 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      *     the name of the counter to adjust
      * @param delta
      *     the amount to adjust the counter by
+     * @param sampleRate
+     *     the sampling rate being employed. For example, a rate of 0.1 would tell StatsD that this counter is being sent
+     *     sampled every 1/10th of the time.
      */
     @Override
-    public void count(String aspect, long delta) {
-        send(messageFor(aspect, delta, "c"));
+    public void count(String aspect, long delta, double sampleRate) {
+        send(messageFor(aspect, delta, "c", sampleRate));
     }
 
     /**
@@ -201,7 +204,12 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     }
 
     private String messageFor(String aspect, Object value, String type) {
-        return String.format("%s%s:%s|%s", prefix, aspect, value, type);
+        return messageFor(aspect, value, type, 1.0);
+    }
+
+    private String messageFor(String aspect, Object value, String type, double sampleRate) {
+        final String messageFormat = (sampleRate == 1.0) ? "%s%s:%s|%s" : "%s%s:%s|%s@%f";
+        return String.format(messageFormat, prefix, aspect, value, type, sampleRate);
     }
 
     private void send(final String message) {
