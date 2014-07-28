@@ -3,6 +3,7 @@ package com.timgroup.statsd;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -209,7 +210,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
 
     private String messageFor(String aspect, Object value, String type, double sampleRate) {
         final String messageFormat = (sampleRate == 1.0) ? "%s%s:%s|%s" : "%s%s:%s|%s@%f";
-        return String.format(messageFormat, prefix, aspect, value, type, sampleRate);
+        return String.format((Locale)null, messageFormat, prefix, aspect, value, type, sampleRate);
     }
 
     private void send(final String message) {
