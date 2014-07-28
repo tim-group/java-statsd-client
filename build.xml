@@ -68,6 +68,7 @@
         <mkdir dir="${build.dir}/testreport"/>
         <mkdir dir="${build.dir}/test.tmp"/>
         <junit printsummary="yes" haltonfailure="yes" forkmode="once" tempdir="${build.dir}/test.tmp">
+            <jvmarg value="-Dfile.encoding=UTF-16"/>
             <classpath>
               <pathelement location="${build.dir}/${ant.project.name}-${version.label}.jar"/>
               <pathelement location="${build.dir}/${ant.project.name}-test-${version.label}.jar"/>

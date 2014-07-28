@@ -3,6 +3,7 @@ package com.timgroup.statsd;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.nio.charset.Charset;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -36,6 +37,8 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingStatsDClient {
+
+    private static final Charset STATS_D_ENCODING = Charset.forName("UTF-8");
 
     private static final StatsDClientErrorHandler NO_OP_HANDLER = new StatsDClientErrorHandler() {
         @Override public void handle(Exception e) { /* No-op */ }
@@ -228,7 +231,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
 
     private void blockingSend(String message) {
         try {
-            final byte[] sendData = message.getBytes();
+            final byte[] sendData = message.getBytes(STATS_D_ENCODING);
             final DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
             clientSocket.send(sendPacket);
         } catch (Exception e) {

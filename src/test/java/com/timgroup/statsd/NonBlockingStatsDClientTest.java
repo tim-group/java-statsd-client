@@ -9,6 +9,7 @@ import static org.hamcrest.Matchers.startsWith;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.SocketException;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -193,7 +194,7 @@ public final class NonBlockingStatsDClientTest {
                     try {
                         final DatagramPacket packet = new DatagramPacket(new byte[256], 256);
                         server.receive(packet);
-                        messagesReceived.add(new String(packet.getData()).trim());
+                        messagesReceived.add(new String(packet.getData(), Charset.forName("UTF-8")).trim());
                     } catch (Exception e) { }
                 }
             }).start();
