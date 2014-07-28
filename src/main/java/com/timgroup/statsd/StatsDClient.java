@@ -141,6 +141,21 @@ public interface StatsDClient {
     void recordExecutionTime(String aspect, long timeInMs);
 
     /**
+     * Adjusts the specified counter by a given delta.
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the counter to adjust
+     * @param delta
+     *     the amount to adjust the counter by
+     * @param sampleRate
+     *     the sampling rate being employed. For example, a rate of 0.1 would tell StatsD that this timer is being sent
+     *     sampled every 1/10th of the time, so that it updates its timer_counters appropriately.
+     */
+    void recordExecutionTime(String aspect, long timeInMs, double sampleRate);
+
+    /**
      * Records an execution time in milliseconds for the specified named operation. The execution
      * time is calculated as the delta between the specified start time and the current system
      * time (using {@link System#currentTimeMillis()})

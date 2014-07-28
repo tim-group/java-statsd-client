@@ -199,8 +199,8 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      *     the time in milliseconds
      */
     @Override
-    public void recordExecutionTime(String aspect, long timeInMs) {
-        send(messageFor(aspect, timeInMs, "ms"));
+    public void recordExecutionTime(String aspect, long timeInMs, double sampleRate) {
+        send(messageFor(aspect, timeInMs, "ms", sampleRate));
     }
 
     private String messageFor(String aspect, Object value, String type) {

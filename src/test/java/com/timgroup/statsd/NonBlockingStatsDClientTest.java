@@ -120,6 +120,14 @@ public final class NonBlockingStatsDClientTest {
     }
 
     @Test(timeout=5000L) public void
+    sends_timer_with_rate_to_statsd() throws Exception {
+        client.recordExecutionTime("mytime", 123L, 0.000123);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms@0.000123"));
+    }
+
+    @Test(timeout=5000L) public void
     sends_timer_to_statsd_based_on_specified_start_time_to_now() throws Exception {
         final long startTime = System.currentTimeMillis() - 1000L;
 
