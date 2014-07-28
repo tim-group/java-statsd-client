@@ -6,7 +6,7 @@
   <name>java-statsd-client</name>
   <version>@VERSION@</version>
   <description>A tiny library allowing Java applications to communicate with statsd instances easily.</description>
-  <url>http://github.com/youdevise/java-statsd-client</url>
+  <url>http://github.com/tim-group/java-statsd-client</url>
   <licenses>
     <license>
       <name>The MIT License (MIT)</name>
@@ -15,9 +15,9 @@
     </license>
   </licenses>
   <scm>
-    <url>http://github.com/youdevise/java-statsd-client</url>
-    <connection>scm:git:git://github.com/youdevise/java-statsd-client.git</connection>
-    <developerConnection>scm:git:git@github.com:youdevise/java-statsd-client.git</developerConnection>
+    <url>http://github.com/tim-group/java-statsd-client</url>
+    <connection>scm:git:git://github.com/tim-group/java-statsd-client.git</connection>
+    <developerConnection>scm:git:git@github.com:tim-group/java-statsd-client.git</developerConnection>
   </scm>
   <developers>
     <developer>
