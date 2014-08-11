@@ -92,6 +92,7 @@ public interface StatsDClient {
      *     the new reading of the gauge
      */
     void recordGaugeValue(String aspect, long value);
+    void recordGaugeValue(String aspect, double value);
 
     /**
      * Records a change in the value of the specified named gauge.
@@ -104,11 +105,13 @@ public interface StatsDClient {
      *     the +/- delta to apply to the gauge
      */
     void recordGaugeDelta(String aspect, long delta);
+    void recordGaugeDelta(String aspect, double delta);
 
     /**
-     * Convenience method equivalent to {@link #recordGaugeValue(String, long)}.
+     * Convenience method equivalent to {@link #recordGaugeValue(String, long)} and {@link #recordGaugeValue(String, double)}.
      */
     void gauge(String aspect, long value);
+    void gauge(String aspect, double value);
 
     /**
      * StatsD supports counting unique occurrences of events between flushes, Call this method to records an occurrence

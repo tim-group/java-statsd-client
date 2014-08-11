@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.text.DecimalFormat;
 
 /**
  * A simple StatsD client implementation facilitating metrics recording.
@@ -165,15 +166,26 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordGaugeValue(String aspect, long value) {
-        String message = messageFor(aspect, value, "g");
+        recordGaugeValue(aspect, (double) value);
+    }
+
+    @Override
+    public void recordGaugeValue(String aspect, double value) {
+        String message = messageFor(aspect, formatDouble(value), "g");
         if (value < 0) {
             message = messageFor(aspect, 0, "g") + "\n" + message;
         }
         send(message);
     }
 
+    @Override
     public void recordGaugeDelta(String aspect, long value) {
-        send(messageFor(aspect, (value < 0) ? value : ("+" + value), "g"));
+        recordGaugeDelta(aspect, (double) value);
+    }
+
+    @Override
+    public void recordGaugeDelta(String aspect, double value) {
+        send(messageFor(aspect, (value < 0) ? formatDouble(value) : ("+" + formatDouble(value)), "g"));
     }
 
     /**
@@ -237,5 +249,9 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         } catch (Exception e) {
             handler.handle(e);
         }
+    }
+
+    private String formatDouble(double value) {
+        return new DecimalFormat("0.#").format(value);
     }
 }
