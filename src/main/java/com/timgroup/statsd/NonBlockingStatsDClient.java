@@ -212,8 +212,12 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     }
 
     private String messageFor(String aspect, Object value, String type, double sampleRate) {
-        final String messageFormat = (sampleRate == 1.0) ? "%s%s:%s|%s" : "%s%s:%s|%s@%f";
-        return String.format((Locale)null, messageFormat, prefix, aspect, value, type, sampleRate);
+        final StringBuilder builder = new StringBuilder();
+        builder.append(prefix).append(aspect).append(':').append(value).append('|').append(type);
+        if (sampleRate != 1.0) {
+            builder.append(sampleRate);
+        }
+        return builder.toString();
     }
 
     private void send(final String message) {
