@@ -66,10 +66,10 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_gauge_to_statsd() throws Exception {
-        client.recordGaugeValue("mygauge", 423L);
+        client.recordGaugeValue("mygauge", Long.MAX_VALUE);
         server.waitForMessage();
         
-        assertThat(server.messagesReceived(), contains("my.prefix.mygauge:423|g"));
+        assertThat(server.messagesReceived(), contains("my.prefix.mygauge:9223372036854775807|g"));
     }
 
     @Test(timeout=5000L) public void
