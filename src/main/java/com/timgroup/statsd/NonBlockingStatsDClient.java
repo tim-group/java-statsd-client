@@ -166,26 +166,22 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordGaugeValue(String aspect, long value) {
-        recordGaugeValue(aspect, (double) value);
+        recordGaugeCommon(aspect, value, value < 0, false);
     }
 
     @Override
     public void recordGaugeValue(String aspect, double value) {
-        String message = messageFor(aspect, formatDouble(value), "g");
-        if (value < 0) {
-            message = messageFor(aspect, 0, "g") + "\n" + message;
-        }
-        send(message);
+        recordGaugeCommon(aspect, value, value < 0, false);
     }
 
     @Override
     public void recordGaugeDelta(String aspect, long value) {
-        recordGaugeDelta(aspect, (double) value);
+        recordGaugeCommon(aspect, value, value < 0, true);
     }
 
     @Override
     public void recordGaugeDelta(String aspect, double value) {
-        send(messageFor(aspect, (value < 0) ? formatDouble(value) : ("+" + formatDouble(value)), "g"));
+        recordGaugeCommon(aspect, value, value < 0, true);
     }
 
     /**
@@ -251,7 +247,18 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         }
     }
 
-    private String formatDouble(double value) {
-        return new DecimalFormat("0.#").format(value);
+    private void recordGaugeCommon(String aspect, Number value, boolean valueIsNeg, boolean forDelta) {
+        String messagePrefix = "";
+        String valuePrefix = "";
+
+        if (!forDelta && valueIsNeg) {
+            messagePrefix = messageFor(aspect, 0, "g") + "\n";
+        }
+
+        if (forDelta && !valueIsNeg) {
+            valuePrefix = "+";
+        }
+
+        send(messagePrefix + messageFor(aspect, valuePrefix + value, "g"));
     }
 }
