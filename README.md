@@ -13,7 +13,7 @@ The client jar is distributed via maven central, and can be downloaded [here](ht
 <dependency>
     <groupId>com.timgroup</groupId>
     <artifactId>java-statsd-client</artifactId>
-    <version>2.0.0</version>
+    <version>3.0.1</version>
 </dependency>
 ```
 
