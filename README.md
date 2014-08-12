@@ -1,6 +1,8 @@
 java-statsd-client
 ==================
 
+[![Build Status](https://travis-ci.org/tim-group/java-statsd-client.svg?branch=master)](https://travis-ci.org/tim-group/java-statsd-client)
+
 A statsd client library implemented in Java.  Allows for Java applications to easily communicate with statsd.
 
 Downloads
