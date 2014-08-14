@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.text.NumberFormat;
 
 /**
  * A simple StatsD client implementation facilitating metrics recording.
@@ -249,6 +250,9 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     private void recordGaugeCommon(String aspect, Number value, boolean valueIsNeg, boolean forDelta) {
         String messagePrefix = "";
         String valuePrefix = "";
+        NumberFormat formatter = NumberFormat.getInstance();
+        formatter.setGroupingUsed(false);
+        formatter.setMaximumFractionDigits(19);
 
         if (!forDelta && valueIsNeg) {
             messagePrefix = messageFor(aspect, 0, "g") + "\n";
@@ -258,6 +262,6 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
             valuePrefix = "+";
         }
 
-        send(messagePrefix + messageFor(aspect, valuePrefix + value, "g"));
+        send(messagePrefix + messageFor(aspect, valuePrefix + formatter.format(value), "g"));
     }
 }
