@@ -108,9 +108,13 @@ public interface StatsDClient {
     void recordGaugeDelta(String aspect, double delta);
 
     /**
-     * Convenience method equivalent to {@link #recordGaugeValue(String, long)} and {@link #recordGaugeValue(String, double)}.
+     * Convenience method equivalent to {@link #recordGaugeValue(String, long)}.
      */
     void gauge(String aspect, long value);
+
+    /**
+     * Convenience method equivalent to {@link #recordGaugeValue(String, double)}.
+     */
     void gauge(String aspect, double value);
 
     /**
