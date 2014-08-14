@@ -81,6 +81,14 @@ public final class NonBlockingStatsDClientTest {
     }
 
     @Test(timeout=5000L) public void
+    sends_large_fractional_gauge_to_statsd() throws Exception {
+        client.recordGaugeValue("mygauge", 423423423.9d);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mygauge:423423423.9|g"));
+    }
+
+    @Test(timeout=5000L) public void
     sends_zero_gauge_to_statsd() throws Exception {
         client.recordGaugeValue("mygauge", 0L);
         server.waitForMessage();
