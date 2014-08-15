@@ -52,6 +52,14 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
     }
 
     /**
+     * Convenience method equivalent to {@link #recordGaugeValue(String, double)}.
+     */
+    @Override
+    public final void gauge(String aspect, double value) {
+        recordGaugeValue(aspect, value);
+    }
+
+    /**
      * Convenience method equivalent to {@link #recordSetEvent(String, String)}.
      */
     @Override

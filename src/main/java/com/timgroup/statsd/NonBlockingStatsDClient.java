@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.text.NumberFormat;
 
 /**
  * A simple StatsD client implementation facilitating metrics recording.
@@ -150,7 +151,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void count(String aspect, long delta, double sampleRate) {
-        send(messageFor(aspect, delta, "c", sampleRate));
+        send(messageFor(aspect, Long.toString(delta), "c", sampleRate));
     }
 
     /**
@@ -165,15 +166,31 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordGaugeValue(String aspect, long value) {
-        String message = messageFor(aspect, value, "g");
-        if (value < 0) {
-            message = messageFor(aspect, 0, "g") + "\n" + message;
-        }
-        send(message);
+        recordGaugeCommon(aspect, Long.toString(value), value < 0, false);
     }
 
+    @Override
+    public void recordGaugeValue(String aspect, double value) {
+        recordGaugeCommon(aspect, stringValueOf(value), value < 0, false);
+    }
+
+    @Override
     public void recordGaugeDelta(String aspect, long value) {
-        send(messageFor(aspect, (value < 0) ? value : ("+" + value), "g"));
+        recordGaugeCommon(aspect, Long.toString(value), value < 0, true);
+    }
+
+    @Override
+    public void recordGaugeDelta(String aspect, double value) {
+        recordGaugeCommon(aspect, stringValueOf(value), value < 0, true);
+    }
+
+    private void recordGaugeCommon(String aspect, String value, boolean negative, boolean delta) {
+        final StringBuilder message = new StringBuilder();
+        if (!delta && negative) {
+            message.append(messageFor(aspect, "0", "g")).append('\n');
+        }
+        message.append(messageFor(aspect, (delta && !negative) ? ("+" + value) : value, "g"));
+        send(message.toString());
     }
 
     /**
@@ -204,14 +221,14 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordExecutionTime(String aspect, long timeInMs, double sampleRate) {
-        send(messageFor(aspect, timeInMs, "ms", sampleRate));
+        send(messageFor(aspect, Long.toString(timeInMs), "ms", sampleRate));
     }
 
-    private String messageFor(String aspect, Object value, String type) {
+    private String messageFor(String aspect, String value, String type) {
         return messageFor(aspect, value, type, 1.0);
     }
 
-    private String messageFor(String aspect, Object value, String type, double sampleRate) {
+    private String messageFor(String aspect, String value, String type, double sampleRate) {
         final String messageFormat = (sampleRate == 1.0) ? "%s%s:%s|%s" : "%s%s:%s|%s@%f";
         return String.format((Locale)null, messageFormat, prefix, aspect, value, type, sampleRate);
     }
@@ -237,5 +254,12 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         } catch (Exception e) {
             handler.handle(e);
         }
+    }
+
+    private String stringValueOf(double value) {
+        NumberFormat formatter = NumberFormat.getInstance(Locale.US);
+        formatter.setGroupingUsed(false);
+        formatter.setMaximumFractionDigits(19);
+        return formatter.format(value);
     }
 }

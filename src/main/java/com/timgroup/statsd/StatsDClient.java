@@ -94,6 +94,11 @@ public interface StatsDClient {
     void recordGaugeValue(String aspect, long value);
 
     /**
+     * Convenience method equivalent to {@link #recordGaugeValue(String, long)} but for double values.
+     */
+    void recordGaugeValue(String aspect, double value);
+
+    /**
      * Records a change in the value of the specified named gauge.
      *
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
@@ -106,9 +111,19 @@ public interface StatsDClient {
     void recordGaugeDelta(String aspect, long delta);
 
     /**
+     * Convenience method equivalent to {@link #recordGaugeDelta(String, long)} but for double deltas.
+     */
+    void recordGaugeDelta(String aspect, double delta);
+
+    /**
      * Convenience method equivalent to {@link #recordGaugeValue(String, long)}.
      */
     void gauge(String aspect, long value);
+
+    /**
+     * Convenience method equivalent to {@link #recordGaugeValue(String, double)}.
+     */
+    void gauge(String aspect, double value);
 
     /**
      * StatsD supports counting unique occurrences of events between flushes, Call this method to records an occurrence
