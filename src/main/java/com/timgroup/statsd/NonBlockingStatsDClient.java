@@ -151,7 +151,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void count(String aspect, long delta, double sampleRate) {
-        send(messageFor(aspect, delta, "c", sampleRate));
+        send(messageFor(aspect, Long.toString(delta), "c", sampleRate));
     }
 
     /**
@@ -212,14 +212,14 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordExecutionTime(String aspect, long timeInMs, double sampleRate) {
-        send(messageFor(aspect, timeInMs, "ms", sampleRate));
+        send(messageFor(aspect, Long.toString(timeInMs), "ms", sampleRate));
     }
 
-    private String messageFor(String aspect, Object value, String type) {
+    private String messageFor(String aspect, String value, String type) {
         return messageFor(aspect, value, type, 1.0);
     }
 
-    private String messageFor(String aspect, Object value, String type, double sampleRate) {
+    private String messageFor(String aspect, String value, String type, double sampleRate) {
         final String messageFormat = (sampleRate == 1.0) ? "%s%s:%s|%s" : "%s%s:%s|%s@%f";
         return String.format((Locale)null, messageFormat, prefix, aspect, value, type, sampleRate);
     }
@@ -254,18 +254,12 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         return formatter.format(value);
     }
 
-    private void recordGaugeCommon(String aspect, String value, boolean valueIsNeg, boolean forDelta) {
-        String messagePrefix = "";
-        String valuePrefix = "";
-
-        if (!forDelta && valueIsNeg) {
-            messagePrefix = messageFor(aspect, 0, "g") + "\n";
+    private void recordGaugeCommon(String aspect, String value, boolean negative, boolean delta) {
+        final StringBuilder message = new StringBuilder();
+        if (!delta && negative) {
+            message.append(messageFor(aspect, "0", "g")).append('\n');
         }
-
-        if (forDelta && !valueIsNeg) {
-            valuePrefix = "+";
-        }
-
-        send(messagePrefix + messageFor(aspect, valuePrefix + value, "g"));
+        message.append(messageFor(aspect, (delta && !negative) ? ("+" + value) : value, "g"));
+        send(message.toString());
     }
 }
