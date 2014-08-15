@@ -166,22 +166,22 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordGaugeValue(String aspect, long value) {
-        recordGaugeCommon(aspect, value, value < 0, false);
+        recordGaugeCommon(aspect, Long.toString(value), value < 0, false);
     }
 
     @Override
     public void recordGaugeValue(String aspect, double value) {
-        recordGaugeCommon(aspect, value, value < 0, false);
+        recordGaugeCommon(aspect, stringValueOf(value), value < 0, false);
     }
 
     @Override
     public void recordGaugeDelta(String aspect, long value) {
-        recordGaugeCommon(aspect, value, value < 0, true);
+        recordGaugeCommon(aspect, Long.toString(value), value < 0, true);
     }
 
     @Override
     public void recordGaugeDelta(String aspect, double value) {
-        recordGaugeCommon(aspect, value, value < 0, true);
+        recordGaugeCommon(aspect, stringValueOf(value), value < 0, true);
     }
 
     /**
@@ -247,12 +247,16 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         }
     }
 
-    private void recordGaugeCommon(String aspect, Number value, boolean valueIsNeg, boolean forDelta) {
-        String messagePrefix = "";
-        String valuePrefix = "";
-        NumberFormat formatter = NumberFormat.getInstance();
+    private String stringValueOf(double value) {
+        NumberFormat formatter = NumberFormat.getInstance(Locale.US);
         formatter.setGroupingUsed(false);
         formatter.setMaximumFractionDigits(19);
+        return formatter.format(value);
+    }
+
+    private void recordGaugeCommon(String aspect, String value, boolean valueIsNeg, boolean forDelta) {
+        String messagePrefix = "";
+        String valuePrefix = "";
 
         if (!forDelta && valueIsNeg) {
             messagePrefix = messageFor(aspect, 0, "g") + "\n";
@@ -262,6 +266,6 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
             valuePrefix = "+";
         }
 
-        send(messagePrefix + messageFor(aspect, valuePrefix + formatter.format(value), "g"));
+        send(messagePrefix + messageFor(aspect, valuePrefix + value, "g"));
     }
 }
