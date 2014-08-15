@@ -184,6 +184,15 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         recordGaugeCommon(aspect, stringValueOf(value), value < 0, true);
     }
 
+    private void recordGaugeCommon(String aspect, String value, boolean negative, boolean delta) {
+        final StringBuilder message = new StringBuilder();
+        if (!delta && negative) {
+            message.append(messageFor(aspect, "0", "g")).append('\n');
+        }
+        message.append(messageFor(aspect, (delta && !negative) ? ("+" + value) : value, "g"));
+        send(message.toString());
+    }
+
     /**
      * StatsD supports counting unique occurrences of events between flushes, Call this method to records an occurrence
      * of the specified named event.
@@ -252,14 +261,5 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         formatter.setGroupingUsed(false);
         formatter.setMaximumFractionDigits(19);
         return formatter.format(value);
-    }
-
-    private void recordGaugeCommon(String aspect, String value, boolean negative, boolean delta) {
-        final StringBuilder message = new StringBuilder();
-        if (!delta && negative) {
-            message.append(messageFor(aspect, "0", "g")).append('\n');
-        }
-        message.append(messageFor(aspect, (delta && !negative) ? ("+" + value) : value, "g"));
-        send(message.toString());
     }
 }
