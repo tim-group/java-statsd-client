@@ -92,6 +92,10 @@ public interface StatsDClient {
      *     the new reading of the gauge
      */
     void recordGaugeValue(String aspect, long value);
+
+    /**
+     * Convenience method equivalent to {@link #recordGaugeValue(String, long)} but for double values.
+     */
     void recordGaugeValue(String aspect, double value);
 
     /**
@@ -105,6 +109,10 @@ public interface StatsDClient {
      *     the +/- delta to apply to the gauge
      */
     void recordGaugeDelta(String aspect, long delta);
+
+    /**
+     * Convenience method equivalent to {@link #recordGaugeDelta(String, long)} but for double deltas.
+     */
     void recordGaugeDelta(String aspect, double delta);
 
     /**
