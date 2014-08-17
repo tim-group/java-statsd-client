@@ -5,10 +5,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadFactory;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.text.NumberFormat;
 
 /**
@@ -189,7 +186,6 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         recordGaugeCommon(aspect, Long.toString(value), value < 0, false);
     }
 
-    @Override
     public void recordGaugeValue(String aspect, double value) {
         recordGaugeCommon(aspect, stringValueOf(value), value < 0, false);
     }
@@ -199,7 +195,6 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         recordGaugeCommon(aspect, Long.toString(value), value < 0, true);
     }
 
-    @Override
     public void recordGaugeDelta(String aspect, double value) {
         recordGaugeCommon(aspect, stringValueOf(value), value < 0, true);
     }
