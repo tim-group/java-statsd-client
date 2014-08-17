@@ -31,7 +31,7 @@ import java.util.concurrent.*;
  * on any StatsD clients.</p>
  * 
  * @author Tom Denley
- *
+ * @author Mauro Franceschini
  */
 public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingStatsDClient {
     private static final int STATS_QUEUE_MAX_SIZE = 64 * 1024;
@@ -46,6 +46,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     private final DatagramSocket clientSocket;
     private final StatsDClientErrorHandler handler;
     private final BlockingQueue<String> statsQueue;
+    private Future<?> executorFuture;
     private boolean stopping = false;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
@@ -115,7 +116,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
             throw new StatsDClientException("Failed to start StatsD client", e);
         }
 
-        executor.execute(new Runnable() {
+        this.executorFuture = executor.submit(new Runnable() {
             @Override
             public void run() {
                 while (!stopping) {
@@ -137,6 +138,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     public void stop() {
         try {
             stopping = true;
+            executorFuture.cancel(true);
             executor.shutdown();
             executor.awaitTermination(30, TimeUnit.SECONDS);
         }
@@ -227,12 +229,8 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     }
 
     private String messageFor(String aspect, Object value, String type, double sampleRate) {
-        final StringBuilder builder = new StringBuilder();
-        builder.append(prefix).append(aspect).append(':').append(value).append('|').append(type);
-        if (sampleRate != 1.0) {
-            builder.append(sampleRate);
-        }
-        return builder.toString();
+        final String messageFormat = (sampleRate == 1.0) ? "%s%s:%s|%s" : "%s%s:%s|%s@%f";
+        return String.format(Locale.US, messageFormat, prefix, aspect, value, type, sampleRate);
     }
 
     private void send(final String message) {
