@@ -1,15 +1,15 @@
 package com.timgroup.statsd;
 
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 import java.nio.charset.Charset;
+import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.text.NumberFormat;
 
 /**
  * A simple StatsD client implementation facilitating metrics recording.
@@ -46,7 +46,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     };
 
     private final String prefix;
-    private final DatagramSocket clientSocket;
+    private final DatagramChannel clientSocket;
     private final StatsDClientErrorHandler handler;
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
@@ -109,7 +109,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         this.handler = errorHandler;
         
         try {
-            this.clientSocket = new DatagramSocket();
+            this.clientSocket = DatagramChannel.open();
             this.clientSocket.connect(new InetSocketAddress(hostname, port));
         } catch (Exception e) {
             throw new StatsDClientException("Failed to start StatsD client", e);
@@ -131,7 +131,12 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         }
         finally {
             if (clientSocket != null) {
-                clientSocket.close();
+                try {
+                    clientSocket.close();
+                }
+                catch (Exception e) {
+                    handler.handle(e);
+                }
             }
         }
     }
@@ -249,8 +254,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     private void blockingSend(String message) {
         try {
             final byte[] sendData = message.getBytes(STATS_D_ENCODING);
-            final DatagramPacket sendPacket = new DatagramPacket(sendData, sendData.length);
-            clientSocket.send(sendPacket);
+            clientSocket.write(ByteBuffer.wrap(sendData));
         } catch (Exception e) {
             handler.handle(e);
         }
