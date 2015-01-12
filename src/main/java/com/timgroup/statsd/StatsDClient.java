@@ -193,4 +193,18 @@ public interface StatsDClient {
      * @see <a href="http://docs.datadoghq.com/guides/dogstatsd/#events-1">http://docs.datadoghq.com/guides/dogstatsd/#events-1</a>
      */
     void recordEvent(Event event, String... tags);
+
+    /**
+     * Records a run status for the specified named service check.
+     *
+     * @param sc
+     *     the service check object
+     */
+    void recordServiceCheckRun(ServiceCheck sc);
+
+    /**
+     * Convenience method equivalent to {@link #recordServiceCheckRun(ServiceCheck sc)}.
+     */
+    void serviceCheck(ServiceCheck sc);
+
 }

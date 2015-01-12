@@ -376,4 +376,17 @@ public class NonBlockingStatsDClientTest {
 
         assertThat(server.messagesReceived(), contains("_e{6,5}:title1|text1|d:1234567|h:host1|k:key1|p:low|t:error|#baz,foo:bar"));
     }
+
+    @Test(timeout=5000L) public void
+    sends_service_check() throws Exception {
+        String[] tags = {"key1:val1", "key2:val2"};
+        ServiceCheck sc = new ServiceCheck("my_check.name", ServiceCheck.WARNING, "♬ †øU \n†øU ¥ºu|m: T0µ ♪", "i-abcd1234", tags);
+        sc.setTimestamp(1420740000);
+
+        client.serviceCheck(sc);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains(String.format("_sc|my_check.name|1|d:1420740000|h:i-abcd1234|#key2:val2,key1:val1|m:%s",
+                "♬ †øU \\n†øU ¥ºu|m\\: T0µ ♪")));
+    }
 }

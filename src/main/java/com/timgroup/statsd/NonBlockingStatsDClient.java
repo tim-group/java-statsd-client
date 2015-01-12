@@ -491,6 +491,44 @@ public final class NonBlockingStatsDClient implements StatsDClient {
                 title.length(), text.length(), title, text, eventMap(event), tagString(tags)));
     }
 
+    /**
+     * Records a run status for the specified named service check.
+     *
+     * <p>This method is a DataDog extension, and may not work with other servers.</p>
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param sc
+     *     the service check object
+     */
+    @Override public void recordServiceCheckRun(ServiceCheck sc) {
+        send(toStatsDString(sc));
+    }
+    
+    private String toStatsDString(ServiceCheck sc) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(String.format("_sc|%s|%d", sc.getName(), sc.getStatus()));
+        if (sc.getTimestamp() > 0) {
+            sb.append(String.format("|d:%d", sc.getTimestamp()));
+        }
+        if (sc.getHostname() != null) {
+            sb.append(String.format("|h:%s", sc.getHostname()));
+        }
+        sb.append(tagString(sc.getTags()));
+        if (sc.getMessage() != null) {
+            sb.append(String.format("|m:%s", sc.getEscapedMessage()));
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Convenience method equivalent to {@link #recordServiceCheckRun(ServiceCheck sc)}.
+     */
+    @Override
+    public void serviceCheck(ServiceCheck sc) {
+        recordServiceCheckRun(sc);
+    }
+
     private void send(String message) {
         queue.offer(message);
     }
