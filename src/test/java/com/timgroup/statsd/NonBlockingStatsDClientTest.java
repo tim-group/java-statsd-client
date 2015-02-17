@@ -45,7 +45,7 @@ public final class NonBlockingStatsDClientTest {
         client.count("mycount", Long.MAX_VALUE, 0.00024);
         server.waitForMessage();
 
-        assertThat(server.messagesReceived(), contains("my.prefix.mycount:9223372036854775807|c@0.00024"));
+        assertThat(server.messagesReceived(), contains("my.prefix.mycount:9223372036854775807|c|@0.00024"));
     }
 
     @Test(timeout=5000L) public void
@@ -149,7 +149,7 @@ public final class NonBlockingStatsDClientTest {
         client.recordExecutionTime("mytime", 123L, 0.000123);
         server.waitForMessage();
 
-        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms@0.000123"));
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms|@0.000123"));
     }
 
     @Test(timeout=5000L) public void
