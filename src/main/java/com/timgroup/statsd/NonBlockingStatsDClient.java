@@ -201,7 +201,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         final String message = prefix + aspect + ':' + value + '|' + type;
         return (sampleRate == 1.0)
                 ? message
-                : (message + '@' + stringValueOf(sampleRate));
+                : (message + "|@" + stringValueOf(sampleRate));
     }
 
     private void send(final String message) {
