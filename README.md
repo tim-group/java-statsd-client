@@ -17,6 +17,12 @@ The client jar is distributed via maven central, and can be downloaded [here](ht
 </dependency>
 ```
 
+```gradle
+dependencies {
+    compile 'com.timgroup:java-statsd-client:3.0.1'
+}
+```
+
 Usage
 -----
 ```java

@@ -1,0 +1,33 @@
+apply plugin: 'java'
+
+version = '3.1.0'
+group = 'com.timgroup'
+description = 'A statsd client library implemented in Java.  Allows for Java applications to easily communicate with statsd.'
+
+test {
+    testLogging {
+        /* we want more test failure information, see:
+         *  <http://mrhaki.blogspot.com/2013/05/gradle-goodness-show-more-information.html>
+         */
+        exceptionFormat = 'full'
+        events "passed", "skipped", "failed", "standardOut", "standardError"
+    }
+}
+
+
+/* execute the `check` task by default to run all the test suites */
+defaultTasks 'clean', 'check'
+
+////////////////////////////////////////////////////////////////////////////////
+// DEPENDENCY AND REPOSITORY MANAGEMENT
+////////////////////////////////////////////////////////////////////////////////
+repositories {
+    jcenter()
+}
+
+dependencies {
+    testCompile 'junit:junit:4.12+'
+    testCompile 'org.hamcrest:hamcrest-junit:1.0.0.0+'
+}
+//
+////////////////////////////////////////////////////////////////////////////////
