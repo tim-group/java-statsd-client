@@ -1,10 +1,10 @@
 package com.timgroup.statsd;
 
-import java.net.SocketException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.net.SocketException;
 import java.util.Locale;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -294,4 +294,86 @@ public class NonBlockingStatsDClientTest {
         assertThat(server.messagesReceived(), contains("top.level.value:423|g"));
     }
 
+    @Test(timeout=5000L) public void
+    sends_event() throws Exception {
+
+        final Event event = Event.builder()
+                .withTitle("title1")
+                .withText("text1")
+                .withDate(1234567000)
+                .withHostname("host1")
+                .withPriority(Event.Priority.LOW)
+                .withAggregationKey("key1")
+                .withAlertType(Event.AlertType.ERROR)
+                .build();
+        client.recordEvent(event);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("_e{16,5}:my.prefix.title1|text1|d:1234567|h:host1|k:key1|p:low|t:error"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_partial_event() throws Exception {
+
+        final Event event = Event.builder()
+                .withTitle("title1")
+                .withText("text1")
+                .withDate(1234567000)
+                .build();
+        client.recordEvent(event);
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("_e{16,5}:my.prefix.title1|text1|d:1234567"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_event_with_tags() throws Exception {
+
+        final Event event = Event.builder()
+                .withTitle("title1")
+                .withText("text1")
+                .withDate(1234567000)
+                .withHostname("host1")
+                .withPriority(Event.Priority.LOW)
+                .withAggregationKey("key1")
+                .withAlertType(Event.AlertType.ERROR)
+                .build();
+        client.recordEvent(event, "foo:bar", "baz");
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("_e{16,5}:my.prefix.title1|text1|d:1234567|h:host1|k:key1|p:low|t:error|#baz,foo:bar"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_partial_event_with_tags() throws Exception {
+
+        final Event event = Event.builder()
+                .withTitle("title1")
+                .withText("text1")
+                .withDate(1234567000)
+                .build();
+        client.recordEvent(event, "foo:bar", "baz");
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("_e{16,5}:my.prefix.title1|text1|d:1234567|#baz,foo:bar"));
+    }
+
+    @Test(timeout=5000L) public void
+    sends_event_empty_prefix() throws Exception {
+
+        final NonBlockingStatsDClient empty_prefix_client = new NonBlockingStatsDClient("", "localhost", STATSD_SERVER_PORT);
+        final Event event = Event.builder()
+                .withTitle("title1")
+                .withText("text1")
+                .withDate(1234567000)
+                .withHostname("host1")
+                .withPriority(Event.Priority.LOW)
+                .withAggregationKey("key1")
+                .withAlertType(Event.AlertType.ERROR)
+                .build();
+        empty_prefix_client.recordEvent(event, "foo:bar", "baz");
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("_e{6,5}:title1|text1|d:1234567|h:host1|k:key1|p:low|t:error|#baz,foo:bar"));
+    }
 }

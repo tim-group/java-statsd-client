@@ -178,4 +178,19 @@ public interface StatsDClient {
      */
     void histogram(String aspect, long value, String... tags);
 
+    /**
+     * Records an event
+     *
+     * <p>This method is a DataDog extension, and may not work with other servers.</p>
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param event
+     *     The event to record
+     * @param tags
+     *     array of tags to be added to the data
+     *
+     * @see <a href="http://docs.datadoghq.com/guides/dogstatsd/#events-1">http://docs.datadoghq.com/guides/dogstatsd/#events-1</a>
+     */
+    void recordEvent(Event event, String... tags);
 }

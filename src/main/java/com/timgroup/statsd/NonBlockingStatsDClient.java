@@ -28,6 +28,7 @@ import java.util.concurrent.TimeUnit;
  *   <li>{@link #recordGaugeValue} - records the latest fixed value for the specified named gauge</li>
  *   <li>{@link #recordExecutionTime} - records an execution time in milliseconds for the specified named operation</li>
  *   <li>{@link #recordHistogramValue} - records a value, to be tracked with average, maximum, and percentiles</li>
+ *   <li>{@link #recordEvent} - records an event</li>
  * </ul>
  * From the perspective of the application, these methods are non-blocking, with the resulting
  * IO operations being carried out in a separate thread. Furthermore, these methods are guaranteed
@@ -435,6 +436,59 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     @Override
     public void histogram(String aspect, long value, String... tags) {
         recordHistogramValue(aspect, value, tags);
+    }
+
+    private String eventMap(final Event event) {
+        final StringBuilder res = new StringBuilder("");
+
+        final long millisSinceEpoch = event.getMillisSinceEpoch();
+        if (millisSinceEpoch != -1) {
+            res.append("|d:").append(millisSinceEpoch / 1000);
+        }
+
+        final String hostname = event.getHostname();
+        if (hostname != null) {
+            res.append("|h:").append(hostname);
+        }
+
+        final String aggregationKey = event.getAggregationKey();
+        if (aggregationKey != null) {
+            res.append("|k:").append(aggregationKey);
+        }
+
+        final String priority = event.getPriority();
+        if (priority != null) {
+            res.append("|p:").append(priority);
+        }
+
+        final String alertType = event.getAlertType();
+        if (alertType != null) {
+            res.append("|t:").append(alertType);
+        }
+
+        return res.toString();
+    }
+
+    /**
+     * Records an event
+     *
+     * <p>This method is a DataDog extension, and may not work with other servers.</p>
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param event
+     *     The event to record
+     * @param tags
+     *     array of tags to be added to the data
+     *
+     * @see <a href="http://docs.datadoghq.com/guides/dogstatsd/#events-1">http://docs.datadoghq.com/guides/dogstatsd/#events-1</a>
+     */
+    @Override
+    public void recordEvent(final Event event, final String... tags) {
+        final String title = prefix + event.getTitle();
+        final String text = event.getText();
+        send(String.format("_e{%d,%d}:%s|%s%s%s",
+                title.length(), text.length(), title, text, eventMap(event), tagString(tags)));
     }
 
     private void send(String message) {
