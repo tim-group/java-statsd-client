@@ -501,12 +501,14 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * @param sc
      *     the service check object
      */
-    @Override public void recordServiceCheckRun(ServiceCheck sc) {
+    @Override
+    public void recordServiceCheckRun(final ServiceCheck sc) {
         send(toStatsDString(sc));
     }
     
-    private String toStatsDString(ServiceCheck sc) {
-        StringBuilder sb = new StringBuilder();
+    private String toStatsDString(final ServiceCheck sc) {
+        // see http://docs.datadoghq.com/guides/dogstatsd/#service-checks
+        final StringBuilder sb = new StringBuilder();
         sb.append(String.format("_sc|%s|%d", sc.getName(), sc.getStatus()));
         if (sc.getTimestamp() > 0) {
             sb.append(String.format("|d:%d", sc.getTimestamp()));
@@ -525,7 +527,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * Convenience method equivalent to {@link #recordServiceCheckRun(ServiceCheck sc)}.
      */
     @Override
-    public void serviceCheck(ServiceCheck sc) {
+    public void serviceCheck(final ServiceCheck sc) {
         recordServiceCheckRun(sc);
     }
 

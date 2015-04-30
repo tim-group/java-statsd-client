@@ -5,131 +5,99 @@ package com.timgroup.statsd;
  * sent to the datadog agent
  */
 public class ServiceCheck {
-    public static final int OK = 0;
-    public static final int WARNING = 1;
-    public static final int CRITICAL = 2;
-    public static final int UNKNOWN = 3;
+
+    public enum Status {
+        OK(0), WARNING(1), CRITICAL(2), UNKNOWN(3);
+
+        private final int val;
+        Status(final int val) {
+            this.val = val;
+        }
+    }
 
     private String name, hostname, message;
 
-    private int status, checkRunId, timestamp;
+    private int checkRunId, timestamp;
+
+    private Status status;
 
     private String[] tags;
 
-    /**
-     */
-    public ServiceCheck() {
+    public static Builder builder() {
+        return new Builder();
     }
 
-    /**
-     * @param name
-     * @param status
-     */
-    public ServiceCheck(String name, int status) {
-        this(name, status, null, null, null);
+    public static class Builder {
+        final ServiceCheck res = new ServiceCheck();
+
+        public Builder withName(final String name) {
+            res.name = name;
+            return this;
+        }
+
+        public Builder withHostname(final String hostname) {
+            res.hostname = hostname;
+            return this;
+        }
+
+        public Builder withMessage(final String message) {
+            res.message = message;
+            return this;
+        }
+
+        public Builder withCheckRunId(final int checkRunId) {
+            res.checkRunId = checkRunId;
+            return this;
+        }
+
+        public Builder withTimestamp(final int timestamp) {
+            res.timestamp = timestamp;
+            return this;
+        }
+
+        public Builder withStatus(final Status status) {
+            res.status = status;
+            return this;
+        }
+
+        public Builder withTags(final String[] tags) {
+            res.tags = tags;
+            return this;
+        }
+
+        public ServiceCheck build() {
+            return res;
+        }
     }
 
-    public ServiceCheck(String name, int status, String message, String[] tags) {
-        this(name, status, message, null, tags);
+    private ServiceCheck() {
     }
 
-    public ServiceCheck(String name, int status, String message, String hostname, String[] tags) {
-        this.name = name;
-        this.status = status;
-        this.message = message;
-        this.hostname = hostname;
-        this.tags = tags;
-    }
-
-    /**
-     * @return
-     */
     public String getName() {
         return name;
     }
 
-    /**
-     * @param name
-     */
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    /**
-     * @return
-     */
     public int getStatus() {
-        return status;
+        return status.val;
     }
 
-    /**
-     * @param status
-     */
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
-    /**
-     * @return
-     */
     public String getMessage() {
         return message;
     }
 
-    /**
-     * @return
-     */
     public String getEscapedMessage() {
         return message.replace("\n", "\\n").replace("m:", "m\\:");
     }
 
-    /**
-     *
-     * @param message
-     */
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    /**
-     * @return
-     */
     public String getHostname() {
         return hostname;
     }
 
-    /**
-     * @param hostname
-     */
-    public void setHostname(String hostname) {
-        this.hostname = hostname;
-    }
-
-    /**
-     * @return
-     */
     public int getTimestamp() {
         return timestamp;
     }
 
-    /**
-     * @param timestamp
-     */
-    public void setTimestamp(int timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    /**
-     * @return
-     */
     public String[] getTags() {
         return tags;
-    }
-
-    /**
-     * @param tags
-     */
-    public void setTags(String... tags) {
-        this.tags = tags;
     }
 }
