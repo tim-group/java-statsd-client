@@ -380,8 +380,8 @@ public class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_service_check() throws Exception {
-        final String inputMessage = "\u266c \u2020\u00f8U \n\u2020\u00f8U \u00a5\u00bau|m: T0\u00b5 \u266a"; // "♬ †øU \n†øU ¥ºu|m: T0µ ♪"
-        final String outputMessage = "\u266c \u2020\u00f8U \\n\u2020\u00f8U \u00a5\u00bau|m\\: T0\u00b5 \u266a"; // note the escaped colon
+        final String inputMessage = "a bcU \ndeU fgu|m: T0h i";
+        final String outputMessage = "a bcU \\ndeU fgu|m\\: T0h i"; // note the escaped colon
         final String[] tags = {"key1:val1", "key2:val2"};
         final ServiceCheck sc = ServiceCheck.builder()
                 .withName("my_check.name")
