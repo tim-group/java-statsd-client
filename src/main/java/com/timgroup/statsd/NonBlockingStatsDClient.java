@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
+import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.concurrent.BlockingQueue;
@@ -535,6 +536,8 @@ public final class NonBlockingStatsDClient implements StatsDClient {
         queue.offer(message);
     }
 
+    private final Charset UTF8 = Charset.forName("UTF-8");
+
     private class QueueConsumer implements Runnable {
         private final ByteBuffer sendBuffer = ByteBuffer.allocate(PACKET_SIZE_BYTES);
 
@@ -543,7 +546,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
                 try {
                     String message = queue.poll(1, TimeUnit.SECONDS);
                     if(null != message) {
-                        byte[] data = message.getBytes();
+                        byte[] data = message.getBytes(UTF8);
                         if(sendBuffer.remaining() < (data.length + 1)) {
                             blockingSend();
                         }
