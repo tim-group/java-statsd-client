@@ -536,7 +536,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
         queue.offer(message);
     }
 
-    private final Charset UTF8 = Charset.forName("UTF-8");
+    public static final Charset MESSAGE_CHARSET = Charset.forName("UTF-8");
 
     private class QueueConsumer implements Runnable {
         private final ByteBuffer sendBuffer = ByteBuffer.allocate(PACKET_SIZE_BYTES);
@@ -546,7 +546,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
                 try {
                     String message = queue.poll(1, TimeUnit.SECONDS);
                     if(null != message) {
-                        byte[] data = message.getBytes(UTF8);
+                        byte[] data = message.getBytes(MESSAGE_CHARSET);
                         if(sendBuffer.remaining() < (data.length + 1)) {
                             blockingSend();
                         }
