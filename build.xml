@@ -73,6 +73,7 @@
               <pathelement location="${build.dir}/${ant.project.name}-test-${version.label}.jar"/>
             </classpath>
             <formatter type="xml"/>
+	    <formatter type="brief" usefile="false" />
             <batchtest fork="yes" todir="${build.dir}/testreport">
               <zipfileset src="${build.dir}/${ant.project.name}-test-${version.label}.jar">
                 <include name="com/timgroup/statsd/**/*Test.class"/>

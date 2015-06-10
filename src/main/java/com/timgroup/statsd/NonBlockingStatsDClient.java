@@ -120,6 +120,9 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void count(String aspect, long delta, double sampleRate) {
+        if (!shouldSend(sampleRate)) {
+            return;
+        }
         send(messageFor(aspect, Long.toString(delta), "c", sampleRate));
     }
 
@@ -190,6 +193,9 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordExecutionTime(String aspect, long timeInMs, double sampleRate) {
+        if (!shouldSend(sampleRate)) {
+            return;
+        }
         send(messageFor(aspect, Long.toString(timeInMs), "ms", sampleRate));
     }
 
@@ -197,7 +203,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         return messageFor(aspect, value, type, 1.0);
     }
 
-    private String messageFor(String aspect, String value, String type, double sampleRate) {
+    private String messageFor(String aspect, String value, String type, double sampleRate) {        
         final String message = prefix + aspect + ':' + value + '|' + type;
         return (sampleRate == 1.0)
                 ? message

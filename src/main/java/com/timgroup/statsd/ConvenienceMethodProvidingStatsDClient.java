@@ -1,5 +1,8 @@
 package com.timgroup.statsd;
 
+import java.util.concurrent.ThreadLocalRandom;
+
+
 public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDClient {
 
     public ConvenienceMethodProvidingStatsDClient() {
@@ -83,5 +86,12 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
     @Override
     public void recordExecutionTimeToNow(String aspect, long systemTimeMillisAtStart) {
         time(aspect, Math.max(0, System.currentTimeMillis() - systemTimeMillisAtStart));
+    }
+
+    /**
+     * Returns true when the client should send a message, given a sample rate.
+     */
+    protected Boolean shouldSend(double sampleRate) {
+        return ThreadLocalRandom.current().nextDouble() <= sampleRate;
     }
 }

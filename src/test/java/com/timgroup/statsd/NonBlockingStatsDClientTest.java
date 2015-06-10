@@ -42,10 +42,10 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_counter_value_with_rate_to_statsd() throws Exception {
-        client.count("mycount", Long.MAX_VALUE, 0.00024);
+        client.count("mycount", Long.MAX_VALUE, 0.999999);
         server.waitForMessage();
 
-        assertThat(server.messagesReceived(), contains("my.prefix.mycount:9223372036854775807|c|@0.00024"));
+        assertThat(server.messagesReceived(), contains("my.prefix.mycount:9223372036854775807|c|@0.999999"));
     }
 
     @Test(timeout=5000L) public void
@@ -146,10 +146,10 @@ public final class NonBlockingStatsDClientTest {
 
     @Test(timeout=5000L) public void
     sends_timer_with_rate_to_statsd() throws Exception {
-        client.recordExecutionTime("mytime", 123L, 0.000123);
+        client.recordExecutionTime("mytime", 123L, 0.999999);
         server.waitForMessage();
 
-        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms|@0.000123"));
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms|@0.999999"));
     }
 
     @Test(timeout=5000L) public void
