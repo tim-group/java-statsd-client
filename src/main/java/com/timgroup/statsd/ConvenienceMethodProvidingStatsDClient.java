@@ -84,4 +84,11 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
     public void recordExecutionTimeToNow(String aspect, long systemTimeMillisAtStart) {
         time(aspect, Math.max(0, System.currentTimeMillis() - systemTimeMillisAtStart));
     }
+
+    /**
+     * Returns true when the client should send a message, given a sample rate.
+     */
+    protected Boolean shouldSend(double sampleRate) {
+        return Math.random() <= sampleRate;
+    }
 }
