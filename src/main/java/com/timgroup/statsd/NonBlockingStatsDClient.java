@@ -3,7 +3,6 @@ package com.timgroup.statsd;
 import java.nio.charset.Charset;
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.lang.Math;
 
 /**
  * A simple StatsD client implementation facilitating metrics recording.
