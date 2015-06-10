@@ -1,5 +1,8 @@
 package com.timgroup.statsd;
 
+import java.util.concurrent.ThreadLocalRandom;
+
+
 public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDClient {
 
     public ConvenienceMethodProvidingStatsDClient() {
@@ -89,6 +92,6 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
      * Returns true when the client should send a message, given a sample rate.
      */
     protected Boolean shouldSend(double sampleRate) {
-        return Math.random() <= sampleRate;
+        return ThreadLocalRandom.current().nextDouble() <= sampleRate;
     }
 }
