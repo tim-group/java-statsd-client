@@ -41,9 +41,7 @@ public class Foo {
     statsd.recordHistogram("qux", 15)     /* DataDog extension: histograms */
     statsd.recordHistogram("qux", 15.5)   /* ...also floating-point */
 
-    /* Compatibility note: Unlike upstream statsd, DataDog expects execution times to be a
-     * floating-point value in seconds, not a millisecond value. This library
-     * does the conversion from ms to fractional seconds.
+    /* expects times in milliseconds
      */
     statsd.recordExecutionTime("bag", 25, "cluster:foo"); /* DataDog extension: cluster tag */
   }
