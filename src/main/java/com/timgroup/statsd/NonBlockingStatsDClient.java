@@ -5,6 +5,8 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.charset.Charset;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.concurrent.BlockingQueue;
@@ -65,6 +67,12 @@ public final class NonBlockingStatsDClient implements StatsDClient {
             NumberFormat numberFormatter = NumberFormat.getInstance(Locale.US);
             numberFormatter.setGroupingUsed(false);
             numberFormatter.setMaximumFractionDigits(6);
+
+            // we need to specify a value for Double.NaN that is recognized by dogStatsD
+            DecimalFormatSymbols symbols = ((DecimalFormat) numberFormatter).getDecimalFormatSymbols();
+            symbols.setNaN("NaN");
+            ((DecimalFormat) numberFormatter).setDecimalFormatSymbols(symbols);
+
             return numberFormatter;
         }
     };
