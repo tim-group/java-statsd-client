@@ -69,9 +69,12 @@ public final class NonBlockingStatsDClient implements StatsDClient {
             numberFormatter.setMaximumFractionDigits(6);
 
             // we need to specify a value for Double.NaN that is recognized by dogStatsD
-            DecimalFormatSymbols symbols = ((DecimalFormat) numberFormatter).getDecimalFormatSymbols();
-            symbols.setNaN("NaN");
-            ((DecimalFormat) numberFormatter).setDecimalFormatSymbols(symbols);
+            if (numberFormatter instanceof DecimalFormat) { // better safe than a runtime error
+                final DecimalFormat decimalFormat = (DecimalFormat) numberFormatter;
+                final DecimalFormatSymbols symbols = decimalFormat.getDecimalFormatSymbols();
+                symbols.setNaN("NaN");
+                decimalFormat.setDecimalFormatSymbols(symbols);
+            }
 
             return numberFormatter;
         }

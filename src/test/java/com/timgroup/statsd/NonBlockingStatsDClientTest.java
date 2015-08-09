@@ -3,16 +3,13 @@ package com.timgroup.statsd;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.powermock.reflect.Whitebox;
 
 import java.net.SocketException;
-import java.text.NumberFormat;
 import java.util.Locale;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class NonBlockingStatsDClientTest {
 
@@ -402,14 +399,6 @@ public class NonBlockingStatsDClientTest {
 
         assertThat(server.messagesReceived(), contains(String.format("_sc|my_check.name|1|d:1420740000|h:i-abcd1234|#key2:val2,key1:val1|m:%s",
                 outputMessage)));
-    }
-
-    @Test(timeout=5000L) public void
-    number_formatters_handles_nan() throws Exception {
-        ThreadLocal<NumberFormat> NUMBER_FORMATTERS = Whitebox.getInternalState(NonBlockingStatsDClient.class, "NUMBER_FORMATTERS");
-        String formattedValue = NUMBER_FORMATTERS.get().format(Double.NaN);
-
-        assertTrue(formattedValue.equals("NaN"));
     }
 
     @Test(timeout=5000L) public void
