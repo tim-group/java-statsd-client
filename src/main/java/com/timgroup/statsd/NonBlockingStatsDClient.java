@@ -1,6 +1,7 @@
 package com.timgroup.statsd;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
@@ -82,7 +83,6 @@ public final class NonBlockingStatsDClient implements StatsDClient {
 
     private final String prefix;
     private final DatagramChannel clientChannel;
-    private final InetSocketAddress address;
     private final StatsDClientErrorHandler handler;
     private final String constantTagsRendered;
 
@@ -191,11 +191,10 @@ public final class NonBlockingStatsDClient implements StatsDClient {
 
         try {
             this.clientChannel = DatagramChannel.open();
-            this.address = new InetSocketAddress(hostname, port);
         } catch (Exception e) {
             throw new StatsDClientException("Failed to start StatsD client", e);
         }
-        this.executor.submit(new QueueConsumer());
+        this.executor.submit(new QueueConsumer(hostname,port));
     }
 
     /**
@@ -549,8 +548,17 @@ public final class NonBlockingStatsDClient implements StatsDClient {
 
     public static final Charset MESSAGE_CHARSET = Charset.forName("UTF-8");
 
+
     private class QueueConsumer implements Runnable {
         private final ByteBuffer sendBuffer = ByteBuffer.allocate(PACKET_SIZE_BYTES);
+
+        private String hostname;
+        private int port;
+
+        public QueueConsumer(String hostname, int port) {
+            this.hostname = hostname;
+            this.port = port;
+        }
 
         @Override public void run() {
             while(!executor.isShutdown()) {
@@ -578,6 +586,9 @@ public final class NonBlockingStatsDClient implements StatsDClient {
         private void blockingSend() throws IOException {
             int sizeOfBuffer = sendBuffer.position();
             sendBuffer.flip();
+
+            InetSocketAddress address = new InetSocketAddress(InetAddress.getByName(this.hostname),this.port);
+
             int sentBytes = clientChannel.send(sendBuffer, address);
             sendBuffer.limit(sendBuffer.capacity());
             sendBuffer.rewind();
