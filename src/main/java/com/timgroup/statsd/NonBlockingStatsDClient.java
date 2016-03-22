@@ -1,7 +1,9 @@
 package com.timgroup.statsd;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.nio.channels.DatagramChannel;
 import java.nio.charset.Charset;
@@ -10,6 +12,7 @@ import java.text.DecimalFormatSymbols;
 import java.text.NumberFormat;
 import java.util.Locale;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -82,7 +85,6 @@ public final class NonBlockingStatsDClient implements StatsDClient {
 
     private final String prefix;
     private final DatagramChannel clientChannel;
-    private final InetSocketAddress address;
     private final StatsDClientErrorHandler handler;
     private final String constantTagsRendered;
 
@@ -118,7 +120,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     if the client could not be started
      */
     public NonBlockingStatsDClient(String prefix, String hostname, int port) throws StatsDClientException {
-        this(prefix, hostname, port, null, NO_OP_HANDLER);
+        this(prefix, hostname, port, null, null);
     }
 
     /**
@@ -143,7 +145,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     if the client could not be started
      */
     public NonBlockingStatsDClient(String prefix, String hostname, int port, String... constantTags) throws StatsDClientException {
-        this(prefix, hostname, port, constantTags, NO_OP_HANDLER);
+        this(prefix, hostname, port, constantTags, null);
     }
 
     /**
@@ -166,36 +168,68 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * @param constantTags
      *     tags to be added to all content sent
      * @param errorHandler
-     *     handler to use when an exception occurs during usage
+     *     handler to use when an exception occurs during usage, may be null to indicate noop
      * @throws StatsDClientException
      *     if the client could not be started
      */
-    public NonBlockingStatsDClient(String prefix, String hostname, int port, String[] constantTags, StatsDClientErrorHandler errorHandler) throws StatsDClientException {
-        if(prefix != null && prefix.length() > 0) {
+    public NonBlockingStatsDClient(final String prefix, final String hostname, final int port, final String[] constantTags,
+                                   final StatsDClientErrorHandler errorHandler) throws StatsDClientException {
+        this(prefix, constantTags, errorHandler, staticStatsDAddressResolution(hostname, port));
+    }
+
+    /**
+     * Create a new StatsD client communicating with a StatsD instance on the
+     * specified host and port. All messages send via this client will have
+     * their keys prefixed with the specified string. The new client will
+     * attempt to open a connection to the StatsD server immediately upon
+     * instantiation, and may throw an exception if that a connection cannot
+     * be established. Once a client has been instantiated in this way, all
+     * exceptions thrown during subsequent usage are passed to the specified
+     * handler and then consumed, guaranteeing that failures in metrics will
+     * not affect normal code execution.
+     *
+     * @param prefix
+     *     the prefix to apply to keys sent via this client
+     * @param constantTags
+     *     tags to be added to all content sent
+     * @param errorHandler
+     *     handler to use when an exception occurs during usage, may be null to indicate noop
+     * @param addressLookup
+     *     yields the IP address and socket of the StatsD server
+     * @throws StatsDClientException
+     *     if the client could not be started
+     */
+    public NonBlockingStatsDClient(final String prefix, String[] constantTags, final StatsDClientErrorHandler errorHandler,
+                                   final Callable<InetSocketAddress> addressLookup) throws StatsDClientException {
+        if((prefix != null) && (prefix.length() > 0)) {
             this.prefix = String.format("%s.", prefix);
         } else {
             this.prefix = "";
         }
-        this.handler = errorHandler;
+        if(errorHandler == null) {
+            handler = NO_OP_HANDLER;
+        }
+        else {
+            handler = errorHandler;
+        }
 
         /* Empty list should be null for faster comparison */
-        if(constantTags != null && constantTags.length == 0) {
+        if((constantTags != null) && (constantTags.length == 0)) {
             constantTags = null;
         }
 
         if(constantTags != null) {
-            this.constantTagsRendered = tagString(constantTags, null);
+            constantTagsRendered = tagString(constantTags, null);
         } else {
-            this.constantTagsRendered = null;
+            constantTagsRendered = null;
         }
 
         try {
-            this.clientChannel = DatagramChannel.open();
-            this.address = new InetSocketAddress(hostname, port);
+            clientChannel = DatagramChannel.open();
         } catch (Exception e) {
             throw new StatsDClientException("Failed to start StatsD client", e);
         }
-        this.executor.submit(new QueueConsumer());
+        executor.submit(new QueueConsumer(addressLookup));
     }
 
     /**
@@ -549,36 +583,45 @@ public final class NonBlockingStatsDClient implements StatsDClient {
 
     public static final Charset MESSAGE_CHARSET = Charset.forName("UTF-8");
 
+
     private class QueueConsumer implements Runnable {
         private final ByteBuffer sendBuffer = ByteBuffer.allocate(PACKET_SIZE_BYTES);
+
+        private final Callable<InetSocketAddress> addressLookup;
+
+        QueueConsumer(final Callable<InetSocketAddress> addressLookup) {
+            this.addressLookup = addressLookup;
+        }
 
         @Override public void run() {
             while(!executor.isShutdown()) {
                 try {
-                    String message = queue.poll(1, TimeUnit.SECONDS);
+                    final String message = queue.poll(1, TimeUnit.SECONDS);
                     if(null != message) {
-                        byte[] data = message.getBytes(MESSAGE_CHARSET);
+                        final InetSocketAddress address = this.addressLookup.call();
+                        final byte[] data = message.getBytes(MESSAGE_CHARSET);
                         if(sendBuffer.remaining() < (data.length + 1)) {
-                            blockingSend();
+                            blockingSend(address);
                         }
                         if(sendBuffer.position() > 0) {
                             sendBuffer.put( (byte) '\n');
                         }
                         sendBuffer.put(data);
                         if(null == queue.peek()) {
-                            blockingSend();
+                            blockingSend(address);
                         }
                     }
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     handler.handle(e);
                 }
             }
         }
 
-        private void blockingSend() throws IOException {
-            int sizeOfBuffer = sendBuffer.position();
+        private void blockingSend(final InetSocketAddress address) throws IOException {
+            final int sizeOfBuffer = sendBuffer.position();
             sendBuffer.flip();
-            int sentBytes = clientChannel.send(sendBuffer, address);
+
+            final int sentBytes = clientChannel.send(sendBuffer, address);
             sendBuffer.limit(sendBuffer.capacity());
             sendBuffer.rewind();
 
@@ -593,6 +636,47 @@ public final class NonBlockingStatsDClient implements StatsDClient {
                                 sentBytes,
                                 sizeOfBuffer)));
             }
+        }
+    }
+
+    /**
+     * Create dynamic lookup for the given host name and port.
+     *
+     * @param hostname the host name of the targeted StatsD server
+     * @param port     the port of the targeted StatsD server
+     * @return a function to perform the lookup
+     * @see NonBlockingStatsDClient#NonBlockingStatsDClient(String, String[], StatsDClientErrorHandler, Callable)
+     */
+    public static Callable<InetSocketAddress> volatileAddressResolution(final String hostname, final int port) {
+        return new Callable<InetSocketAddress>() {
+            @Override public InetSocketAddress call() throws UnknownHostException {
+                return new InetSocketAddress(InetAddress.getByName(hostname), port);
+            }
+        };
+    }
+
+  /**
+   * Lookup the address for the given host name and cache the result.
+   *
+   * @param hostname the host name of the targeted StatsD server
+   * @param port     the port of the targeted StatsD server
+   * @return a function that cached the result of the lookup
+   * @throws Exception if the lookup fails, i.e. {@link UnknownHostException}
+   */
+    public static Callable<InetSocketAddress> staticAddressResolution(final String hostname, final int port) throws Exception {
+        final InetSocketAddress address = volatileAddressResolution(hostname, port).call();
+        return new Callable<InetSocketAddress>() {
+            @Override public InetSocketAddress call() {
+                return address;
+            }
+        };
+    }
+
+    private static Callable<InetSocketAddress> staticStatsDAddressResolution(final String hostname, final int port) throws StatsDClientException {
+        try {
+            return staticAddressResolution(hostname, port);
+        } catch (final Exception e) {
+            throw new StatsDClientException("Failed to lookup StatsD host", e);
         }
     }
 }
