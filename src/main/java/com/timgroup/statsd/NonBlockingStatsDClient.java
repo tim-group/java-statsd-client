@@ -172,7 +172,8 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * @throws StatsDClientException
      *     if the client could not be started
      */
-    public NonBlockingStatsDClient(String prefix, final String hostname, final int port, String[] constantTags, StatsDClientErrorHandler errorHandler) throws StatsDClientException {
+    public NonBlockingStatsDClient(final String prefix, final String hostname, final int port, final String[] constantTags,
+                                   final StatsDClientErrorHandler errorHandler) throws StatsDClientException {
         this(prefix, constantTags, errorHandler, staticStatsDAddressResolution(hostname, port));
     }
 
@@ -198,36 +199,37 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * @throws StatsDClientException
      *     if the client could not be started
      */
-    public NonBlockingStatsDClient(String prefix, String[] constantTags, StatsDClientErrorHandler errorHandler, Callable<InetSocketAddress> addressLookup) throws StatsDClientException {
-        if(prefix != null && prefix.length() > 0) {
+    public NonBlockingStatsDClient(final String prefix, String[] constantTags, final StatsDClientErrorHandler errorHandler,
+                                   final Callable<InetSocketAddress> addressLookup) throws StatsDClientException {
+        if((prefix != null) && (prefix.length() > 0)) {
             this.prefix = String.format("%s.", prefix);
         } else {
             this.prefix = "";
         }
         if(errorHandler == null) {
-            this.handler = NO_OP_HANDLER;
+            handler = NO_OP_HANDLER;
         }
         else {
-            this.handler = errorHandler;
+            handler = errorHandler;
         }
 
         /* Empty list should be null for faster comparison */
-        if(constantTags != null && constantTags.length == 0) {
+        if((constantTags != null) && (constantTags.length == 0)) {
             constantTags = null;
         }
 
         if(constantTags != null) {
-            this.constantTagsRendered = tagString(constantTags, null);
+            constantTagsRendered = tagString(constantTags, null);
         } else {
-            this.constantTagsRendered = null;
+            constantTagsRendered = null;
         }
 
         try {
-            this.clientChannel = DatagramChannel.open();
+            clientChannel = DatagramChannel.open();
         } catch (Exception e) {
             throw new StatsDClientException("Failed to start StatsD client", e);
         }
-        this.executor.submit(new QueueConsumer(addressLookup));
+        executor.submit(new QueueConsumer(addressLookup));
     }
 
     /**
@@ -587,17 +589,17 @@ public final class NonBlockingStatsDClient implements StatsDClient {
 
         private final Callable<InetSocketAddress> addressLookup;
 
-        public QueueConsumer(Callable<InetSocketAddress> addressLookup) {
+        QueueConsumer(final Callable<InetSocketAddress> addressLookup) {
             this.addressLookup = addressLookup;
         }
 
         @Override public void run() {
             while(!executor.isShutdown()) {
                 try {
-                    String message = queue.poll(1, TimeUnit.SECONDS);
+                    final String message = queue.poll(1, TimeUnit.SECONDS);
                     if(null != message) {
-                        InetSocketAddress address = this.addressLookup.call();
-                        byte[] data = message.getBytes(MESSAGE_CHARSET);
+                        final InetSocketAddress address = this.addressLookup.call();
+                        final byte[] data = message.getBytes(MESSAGE_CHARSET);
                         if(sendBuffer.remaining() < (data.length + 1)) {
                             blockingSend(address);
                         }
@@ -609,17 +611,17 @@ public final class NonBlockingStatsDClient implements StatsDClient {
                             blockingSend(address);
                         }
                     }
-                } catch (Exception e) {
+                } catch (final Exception e) {
                     handler.handle(e);
                 }
             }
         }
 
-        private void blockingSend(InetSocketAddress address) throws IOException {
-            int sizeOfBuffer = sendBuffer.position();
+        private void blockingSend(final InetSocketAddress address) throws IOException {
+            final int sizeOfBuffer = sendBuffer.position();
             sendBuffer.flip();
 
-            int sentBytes = clientChannel.send(sendBuffer, address);
+            final int sentBytes = clientChannel.send(sendBuffer, address);
             sendBuffer.limit(sendBuffer.capacity());
             sendBuffer.rewind();
 
@@ -647,7 +649,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     public static Callable<InetSocketAddress> volatileAddressResolution(final String hostname, final int port) {
         return new Callable<InetSocketAddress>() {
-            @Override public InetSocketAddress call() throws Exception {
+            @Override public InetSocketAddress call() throws UnknownHostException {
                 return new InetSocketAddress(InetAddress.getByName(hostname), port);
             }
         };
@@ -661,19 +663,19 @@ public final class NonBlockingStatsDClient implements StatsDClient {
    * @return a function that cached the result of the lookup
    * @throws Exception if the lookup fails, i.e. {@link UnknownHostException}
    */
-    public static Callable<InetSocketAddress> staticAddressResolution(String hostname, int port) throws Exception {
+    public static Callable<InetSocketAddress> staticAddressResolution(final String hostname, final int port) throws Exception {
         final InetSocketAddress address = volatileAddressResolution(hostname, port).call();
         return new Callable<InetSocketAddress>() {
-            @Override public InetSocketAddress call() throws Exception {
+            @Override public InetSocketAddress call() {
                 return address;
             }
         };
     }
 
-    private static Callable<InetSocketAddress> staticStatsDAddressResolution(String hostname, int port) throws StatsDClientException {
+    private static Callable<InetSocketAddress> staticStatsDAddressResolution(final String hostname, final int port) throws StatsDClientException {
         try {
             return staticAddressResolution(hostname, port);
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new StatsDClientException("Failed to lookup StatsD host", e);
         }
     }
