@@ -11,7 +11,7 @@
     <artifactId>java-dogstatsd-client</artifactId>
     <packaging>jar</packaging>
     <name>java-dogstatsd-client</name>
-    <version>2.0.14</version>
+    <version>2.0.15-SNAPSHOT</version>
     <description>A tiny library allowing Java applications to communicate with DataDog statsd instances easily.</description>
     <url>https://github.com/indeedeng/java-dogstatsd-client</url>
 
