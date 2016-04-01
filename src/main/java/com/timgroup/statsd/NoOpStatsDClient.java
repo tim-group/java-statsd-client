@@ -27,4 +27,5 @@ public final class NoOpStatsDClient implements StatsDClient {
     @Override public void recordEvent(final Event event, final String... tags) { }
     @Override public void recordServiceCheckRun(ServiceCheck sc) { }
     @Override public void serviceCheck(ServiceCheck sc) { }
+    @Override public void recordSetValue(String aspect, String value, String... tags) { }
 }

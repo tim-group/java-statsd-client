@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
  *   <li>{@link #recordExecutionTime} - records an execution time in milliseconds for the specified named operation</li>
  *   <li>{@link #recordHistogramValue} - records a value, to be tracked with average, maximum, and percentiles</li>
  *   <li>{@link #recordEvent} - records an event</li>
+ *   <li>{@link #recordSetValue} - records a value in a set</li>
  * </ul>
  * From the perspective of the application, these methods are non-blocking, with the resulting
  * IO operations being carried out in a separate thread. Furthermore, these methods are guaranteed
@@ -575,6 +576,31 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     @Override
     public void serviceCheck(final ServiceCheck sc) {
         recordServiceCheckRun(sc);
+    }
+
+
+    /**
+     * Records a value for the specified set.
+     *
+     * Sets are used to count the number of unique elements in a group. If you want to track the number of
+     * unique visitor to your site, sets are a great way to do that.
+     *
+     * <p>This method is a DataDog extension, and may not work with other servers.</p>
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the set
+     * @param value
+     *     the value to track
+     * @param tags
+     *     array of tags to be added to the data
+     */
+    @Override
+    public void recordSetValue(String aspect, String value, String... tags) {
+        // documentation is light, but looking at dogstatsd source, we can send string values
+        // here instead of numbers
+        send(String.format("%s%s:%s|s%s", prefix, aspect, value, tagString(tags)));
     }
 
     private void send(String message) {
