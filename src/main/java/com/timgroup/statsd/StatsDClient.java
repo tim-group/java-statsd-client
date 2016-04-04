@@ -223,6 +223,8 @@ public interface StatsDClient {
      *     the value to track
      * @param tags
      *     array of tags to be added to the data
+     *
+     * @see <a href="http://docs.datadoghq.com/guides/dogstatsd/#sets">http://docs.datadoghq.com/guides/dogstatsd/#sets</a>
      */
     void recordSetValue(String aspect, String value, String... tags);
 

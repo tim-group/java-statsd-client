@@ -595,6 +595,8 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     the value to track
      * @param tags
      *     array of tags to be added to the data
+     *
+     * @see <a href="http://docs.datadoghq.com/guides/dogstatsd/#sets">http://docs.datadoghq.com/guides/dogstatsd/#sets</a>
      */
     @Override
     public void recordSetValue(String aspect, String value, String... tags) {
