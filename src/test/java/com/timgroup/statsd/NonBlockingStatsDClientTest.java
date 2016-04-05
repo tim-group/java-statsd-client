@@ -409,4 +409,24 @@ public class NonBlockingStatsDClientTest {
 
         assertThat(server.messagesReceived(), contains("my.prefix.mygauge:NaN|g"));
     }
+
+    @Test(timeout=5000L) public void
+    sends_set_to_statsd() throws Exception {
+        client.recordSetValue("myset", "myuserid");
+
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.myset:myuserid|s"));
+
+    }
+
+    @Test(timeout=5000L) public void
+    sends_set_to_statsd_with_tags() throws Exception {
+        client.recordSetValue("myset", "myuserid", "foo:bar", "baz");
+
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.myset:myuserid|s|#baz,foo:bar"));
+
+    }
 }

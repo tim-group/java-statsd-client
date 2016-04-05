@@ -207,4 +207,25 @@ public interface StatsDClient {
      */
     void serviceCheck(ServiceCheck sc);
 
+    /**
+     * Records a value for the specified set.
+     *
+     * Sets are used to count the number of unique elements in a group. If you want to track the number of
+     * unique visitor to your site, sets are a great way to do that.
+     *
+     * <p>This method is a DataDog extension, and may not work with other servers.</p>
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the set
+     * @param value
+     *     the value to track
+     * @param tags
+     *     array of tags to be added to the data
+     *
+     * @see <a href="http://docs.datadoghq.com/guides/dogstatsd/#sets">http://docs.datadoghq.com/guides/dogstatsd/#sets</a>
+     */
+    void recordSetValue(String aspect, String value, String... tags);
+
 }

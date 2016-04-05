@@ -35,6 +35,7 @@ import java.util.concurrent.TimeUnit;
  *   <li>{@link #recordExecutionTime} - records an execution time in milliseconds for the specified named operation</li>
  *   <li>{@link #recordHistogramValue} - records a value, to be tracked with average, maximum, and percentiles</li>
  *   <li>{@link #recordEvent} - records an event</li>
+ *   <li>{@link #recordSetValue} - records a value in a set</li>
  * </ul>
  * From the perspective of the application, these methods are non-blocking, with the resulting
  * IO operations being carried out in a separate thread. Furthermore, these methods are guaranteed
@@ -52,7 +53,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
     private static final int PACKET_SIZE_BYTES = 1500;
 
     private static final StatsDClientErrorHandler NO_OP_HANDLER = new StatsDClientErrorHandler() {
-        @Override public void handle(Exception e) { /* No-op */ }
+        @Override public void handle(final Exception e) { /* No-op */ }
     };
 
     /**
@@ -67,7 +68,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
 
             // Always create the formatter for the US locale in order to avoid this bug:
             // https://github.com/indeedeng/java-dogstatsd-client/issues/3
-            NumberFormat numberFormatter = NumberFormat.getInstance(Locale.US);
+            final NumberFormat numberFormatter = NumberFormat.getInstance(Locale.US);
             numberFormatter.setGroupingUsed(false);
             numberFormatter.setMaximumFractionDigits(6);
 
@@ -90,8 +91,8 @@ public final class NonBlockingStatsDClient implements StatsDClient {
 
     private final ExecutorService executor = Executors.newSingleThreadExecutor(new ThreadFactory() {
         final ThreadFactory delegate = Executors.defaultThreadFactory();
-        @Override public Thread newThread(Runnable r) {
-            Thread result = delegate.newThread(r);
+        @Override public Thread newThread(final Runnable r) {
+            final Thread result = delegate.newThread(r);
             result.setName("StatsD-" + result.getName());
             result.setDaemon(true);
             return result;
@@ -119,7 +120,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * @throws StatsDClientException
      *     if the client could not be started
      */
-    public NonBlockingStatsDClient(String prefix, String hostname, int port) throws StatsDClientException {
+    public NonBlockingStatsDClient(final String prefix, final String hostname, final int port) throws StatsDClientException {
         this(prefix, hostname, port, null, null);
     }
 
@@ -144,7 +145,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * @throws StatsDClientException
      *     if the client could not be started
      */
-    public NonBlockingStatsDClient(String prefix, String hostname, int port, String... constantTags) throws StatsDClientException {
+    public NonBlockingStatsDClient(final String prefix, final String hostname, final int port, final String... constantTags) throws StatsDClientException {
         this(prefix, hostname, port, constantTags, null);
     }
 
@@ -201,7 +202,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     public NonBlockingStatsDClient(final String prefix, String[] constantTags, final StatsDClientErrorHandler errorHandler,
                                    final Callable<InetSocketAddress> addressLookup) throws StatsDClientException {
-        if((prefix != null) && (prefix.length() > 0)) {
+        if((prefix != null) && (!prefix.isEmpty())) {
             this.prefix = String.format("%s.", prefix);
         } else {
             this.prefix = "";
@@ -226,7 +227,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
 
         try {
             clientChannel = DatagramChannel.open();
-        } catch (Exception e) {
+        } catch (final Exception e) {
             throw new StatsDClientException("Failed to start StatsD client", e);
         }
         executor.submit(new QueueConsumer(addressLookup));
@@ -242,7 +243,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
             executor.shutdown();
             executor.awaitTermination(30, TimeUnit.SECONDS);
         }
-        catch (Exception e) {
+        catch (final Exception e) {
             handler.handle(e);
         }
         finally {
@@ -250,7 +251,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
                 try {
                     clientChannel.close();
                 }
-                catch (IOException e) {
+                catch (final IOException e) {
                     handler.handle(e);
                 }
             }
@@ -261,15 +262,15 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * Generate a suffix conveying the given tag list to the client
      */
     static String tagString(final String[] tags, final String tagPrefix) {
-        StringBuilder sb;
+        final StringBuilder sb;
         if(tagPrefix != null) {
-            if(tags == null || tags.length == 0) {
+            if((tags == null) || (tags.length == 0)) {
                 return tagPrefix;
             }
             sb = new StringBuilder(tagPrefix);
             sb.append(",");
         } else {
-            if(tags == null || tags.length == 0) {
+            if((tags == null) || (tags.length == 0)) {
                 return "";
             }
             sb = new StringBuilder("|#");
@@ -304,7 +305,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void count(String aspect, long delta, String... tags) {
+    public void count(final String aspect, final long delta, final String... tags) {
         send(String.format("%s%s:%d|c%s", prefix, aspect, delta, tagString(tags)));
     }
 
@@ -319,7 +320,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void incrementCounter(String aspect, String... tags) {
+    public void incrementCounter(final String aspect, final String... tags) {
         count(aspect, 1, tags);
     }
 
@@ -327,7 +328,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * Convenience method equivalent to {@link #incrementCounter(String, String[])}.
      */
     @Override
-    public void increment(String aspect, String... tags) {
+    public void increment(final String aspect, final String... tags) {
         incrementCounter(aspect, tags);
     }
 
@@ -342,7 +343,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void decrementCounter(String aspect, String... tags) {
+    public void decrementCounter(final String aspect, final String... tags) {
         count(aspect, -1, tags);
     }
 
@@ -350,7 +351,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * Convenience method equivalent to {@link #decrementCounter(String, String[])}.
      */
     @Override
-    public void decrement(String aspect, String... tags) {
+    public void decrement(final String aspect, final String... tags) {
         decrementCounter(aspect, tags);
     }
 
@@ -367,7 +368,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordGaugeValue(String aspect, double value, String... tags) {
+    public void recordGaugeValue(final String aspect, final double value, final String... tags) {
         /* Intentionally using %s rather than %f here to avoid
          * padding with extra 0s to represent precision */
         send(String.format("%s%s:%s|g%s", prefix, aspect, NUMBER_FORMATTERS.get().format(value), tagString(tags)));
@@ -377,7 +378,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * Convenience method equivalent to {@link #recordGaugeValue(String, double, String[])}.
      */
     @Override
-    public void gauge(String aspect, double value, String... tags) {
+    public void gauge(final String aspect, final double value, final String... tags) {
         recordGaugeValue(aspect, value, tags);
     }
 
@@ -395,7 +396,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordGaugeValue(String aspect, long value, String... tags) {
+    public void recordGaugeValue(final String aspect, final long value, final String... tags) {
         send(String.format("%s%s:%d|g%s", prefix, aspect, value, tagString(tags)));
     }
 
@@ -403,7 +404,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * Convenience method equivalent to {@link #recordGaugeValue(String, long, String[])}.
      */
     @Override
-    public void gauge(String aspect, long value, String... tags) {
+    public void gauge(final String aspect, final long value, final String... tags) {
         recordGaugeValue(aspect, value, tags);
     }
 
@@ -420,7 +421,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordExecutionTime(String aspect, long timeInMs, String... tags) {
+    public void recordExecutionTime(final String aspect, final long timeInMs, final String... tags) {
         send(String.format("%s%s:%d|ms%s", prefix, aspect, timeInMs, tagString(tags)));
     }
 
@@ -428,7 +429,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * Convenience method equivalent to {@link #recordExecutionTime(String, long, String[])}.
      */
     @Override
-    public void time(String aspect, long value, String... tags) {
+    public void time(final String aspect, final long value, final String... tags) {
         recordExecutionTime(aspect, value, tags);
     }
 
@@ -445,7 +446,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordHistogramValue(String aspect, double value, String... tags) {
+    public void recordHistogramValue(final String aspect, final double value, final String... tags) {
         /* Intentionally using %s rather than %f here to avoid
          * padding with extra 0s to represent precision */
         send(String.format("%s%s:%s|h%s", prefix, aspect, NUMBER_FORMATTERS.get().format(value), tagString(tags)));
@@ -455,7 +456,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * Convenience method equivalent to {@link #recordHistogramValue(String, double, String[])}.
      */
     @Override
-    public void histogram(String aspect, double value, String... tags) {
+    public void histogram(final String aspect, final double value, final String... tags) {
         recordHistogramValue(aspect, value, tags);
     }
 
@@ -472,7 +473,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      *     array of tags to be added to the data
      */
     @Override
-    public void recordHistogramValue(String aspect, long value, String... tags) {
+    public void recordHistogramValue(final String aspect, final long value, final String... tags) {
         send(String.format("%s%s:%d|h%s", prefix, aspect, value, tagString(tags)));
     }
 
@@ -480,7 +481,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      * Convenience method equivalent to {@link #recordHistogramValue(String, long, String[])}.
      */
     @Override
-    public void histogram(String aspect, long value, String... tags) {
+    public void histogram(final String aspect, final long value, final String... tags) {
         recordHistogramValue(aspect, value, tags);
     }
 
@@ -577,7 +578,34 @@ public final class NonBlockingStatsDClient implements StatsDClient {
         recordServiceCheckRun(sc);
     }
 
-    private void send(String message) {
+
+    /**
+     * Records a value for the specified set.
+     *
+     * Sets are used to count the number of unique elements in a group. If you want to track the number of
+     * unique visitor to your site, sets are a great way to do that.
+     *
+     * <p>This method is a DataDog extension, and may not work with other servers.</p>
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the set
+     * @param value
+     *     the value to track
+     * @param tags
+     *     array of tags to be added to the data
+     *
+     * @see <a href="http://docs.datadoghq.com/guides/dogstatsd/#sets">http://docs.datadoghq.com/guides/dogstatsd/#sets</a>
+     */
+    @Override
+    public void recordSetValue(final String aspect, final String value, final String... tags) {
+        // documentation is light, but looking at dogstatsd source, we can send string values
+        // here instead of numbers
+        send(String.format("%s%s:%s|s%s", prefix, aspect, value, tagString(tags)));
+    }
+
+    private void send(final String message) {
         queue.offer(message);
     }
 
@@ -598,7 +626,7 @@ public final class NonBlockingStatsDClient implements StatsDClient {
                 try {
                     final String message = queue.poll(1, TimeUnit.SECONDS);
                     if(null != message) {
-                        final InetSocketAddress address = this.addressLookup.call();
+                        final InetSocketAddress address = addressLookup.call();
                         final byte[] data = message.getBytes(MESSAGE_CHARSET);
                         if(sendBuffer.remaining() < (data.length + 1)) {
                             blockingSend(address);
