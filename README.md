@@ -31,6 +31,7 @@ public class Foo {
     "my.prefix",                          /* prefix to any stats; may be null or empty string */
     "statsd-host",                        /* common case: localhost */
     8125,                                 /* port */
+    10000,                                /* Maximum queue size before blocking, so that we prevent OOM */
     new String[] {"tag:value"}            /* DataDog extension: Constant tags, always applied */
   );
 

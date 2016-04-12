@@ -258,7 +258,7 @@ public class NonBlockingStatsDClientTest {
     @Test(timeout=5000L) public void
     sends_gauge_mixed_tags() throws Exception {
 
-        final NonBlockingStatsDClient empty_prefix_client = new NonBlockingStatsDClient("my.prefix", "localhost", STATSD_SERVER_PORT, new String[] {"instance:foo", "app:bar"});
+        final NonBlockingStatsDClient empty_prefix_client = new NonBlockingStatsDClient("my.prefix", "localhost", STATSD_SERVER_PORT, Integer.MAX_VALUE, "instance:foo", "app:bar");
         empty_prefix_client.gauge("value", 423, "baz");
         server.waitForMessage();
 
@@ -268,7 +268,7 @@ public class NonBlockingStatsDClientTest {
     @Test(timeout=5000L) public void
     sends_gauge_constant_tags_only() throws Exception {
 
-        final NonBlockingStatsDClient empty_prefix_client = new NonBlockingStatsDClient("my.prefix", "localhost", STATSD_SERVER_PORT, new String[] {"instance:foo", "app:bar"});
+        final NonBlockingStatsDClient empty_prefix_client = new NonBlockingStatsDClient("my.prefix", "localhost", STATSD_SERVER_PORT, Integer.MAX_VALUE, "instance:foo", "app:bar");
         empty_prefix_client.gauge("value", 423);
         server.waitForMessage();
 
