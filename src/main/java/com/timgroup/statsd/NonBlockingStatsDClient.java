@@ -564,10 +564,14 @@ public final class NonBlockingStatsDClient implements StatsDClient {
      */
     @Override
     public void recordEvent(final Event event, final String... tags) {
-        final String title = prefix + event.getTitle();
-        final String text = event.getText();
+        final String title = escapeEventTitle(prefix + event.getTitle());
+        final String text = escapeEventTitle(event.getText());
         send(String.format("_e{%d,%d}:%s|%s%s%s",
                 title.length(), text.length(), title, text, eventMap(event), tagString(tags)));
+    }
+
+    private String escapeEventTitle(final String title) {
+        return title.replace("\n", "\\n");
     }
 
     /**

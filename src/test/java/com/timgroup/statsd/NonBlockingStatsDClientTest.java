@@ -300,7 +300,7 @@ public class NonBlockingStatsDClientTest {
 
         final Event event = Event.builder()
                 .withTitle("title1")
-                .withText("text1")
+                .withText("text1\nline2")
                 .withDate(1234567000)
                 .withHostname("host1")
                 .withPriority(Event.Priority.LOW)
@@ -310,7 +310,7 @@ public class NonBlockingStatsDClientTest {
         client.recordEvent(event);
         server.waitForMessage();
 
-        assertThat(server.messagesReceived(), contains("_e{16,5}:my.prefix.title1|text1|d:1234567|h:host1|k:key1|p:low|t:error"));
+        assertThat(server.messagesReceived(), contains("_e{16,12}:my.prefix.title1|text1\\nline2|d:1234567|h:host1|k:key1|p:low|t:error"));
     }
 
     @Test(timeout=5000L) public void
