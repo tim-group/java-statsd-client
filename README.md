@@ -3,7 +3,7 @@ java-dogstatsd-client
 
 A statsd client library implemented in Java.  Allows for Java applications to easily communicate with statsd.
 
-This version is forked from the upstream [java-statsd-client](https://github.com/youdevise/java-statsd-client) project, adding support for [DataDog](http://datadoghq.com/) extensions for use with [dogstatsd](http://docs.datadoghq.com/guides/dogstatsd/).
+This version is forked from the upstream [java-statsd-client](https://github.com/youdevise/java-statsd-client) project, adding support for [Datadog](http://datadoghq.com/) extensions for use with [dogstatsd](http://docs.datadoghq.com/guides/dogstatsd/).
 
 This version also adds support for empty or null prefixes, to allow a client to send arbitrary statistic names.
 
@@ -32,19 +32,19 @@ public class Foo {
     "statsd-host",                        /* common case: localhost */
     8125,                                 /* port */
     10000,                                /* Maximum queue size before blocking, so that we prevent OOM */
-    new String[] {"tag:value"}            /* DataDog extension: Constant tags, always applied */
+    new String[] {"tag:value"}            /* Datadog extension: Constant tags, always applied */
   );
 
   public static final void main(String[] args) {
     statsd.incrementCounter("foo");
     statsd.recordGaugeValue("bar", 100);
-    statsd.recordGaugeValue("baz", 0.01); /* DataDog extension: support for floating-point gauges */
-    statsd.recordHistogram("qux", 15)     /* DataDog extension: histograms */
+    statsd.recordGaugeValue("baz", 0.01); /* Datadog extension: support for floating-point gauges */
+    statsd.recordHistogram("qux", 15)     /* Datadog extension: histograms */
     statsd.recordHistogram("qux", 15.5)   /* ...also floating-point */
 
     /* expects times in milliseconds
      */
-    statsd.recordExecutionTime("bag", 25, "cluster:foo"); /* DataDog extension: cluster tag */
+    statsd.recordExecutionTime("bag", 25, "cluster:foo"); /* Datadog extension: cluster tag */
   }
 }
 ```
