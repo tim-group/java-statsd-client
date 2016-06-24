@@ -9,7 +9,7 @@ This version also adds support for empty or null prefixes, to allow a client to 
 
 Downloads
 ---------
-The client jar is distributed via maven central, and can be downloaded [here](http://search.maven.org/#search%7Cga%7C1%7Cg%3Acom.timgroup%20a%3Ajava-statsd-client).
+The client jar is distributed via maven central, and can be downloaded [here](http://search.maven.org/#search%7Cga%7C1%7Cg%3Acom.indeed%20a%3Ajava-dogstatsd-client).
 
 ```xml
 <dependency>
