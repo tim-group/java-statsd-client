@@ -15,7 +15,7 @@ The client jar is distributed via maven central, and can be downloaded [here](ht
 <dependency>
     <groupId>com.indeed</groupId>
     <artifactId>java-dogstatsd-client</artifactId>
-    <version>2.0.12</version>
+    <version>2.0.16</version>
 </dependency>
 ```
 
@@ -31,7 +31,6 @@ public class Foo {
     "my.prefix",                          /* prefix to any stats; may be null or empty string */
     "statsd-host",                        /* common case: localhost */
     8125,                                 /* port */
-    10000,                                /* Maximum queue size before blocking, so that we prevent OOM */
     new String[] {"tag:value"}            /* Datadog extension: Constant tags, always applied */
   );
 
@@ -39,8 +38,8 @@ public class Foo {
     statsd.incrementCounter("foo");
     statsd.recordGaugeValue("bar", 100);
     statsd.recordGaugeValue("baz", 0.01); /* Datadog extension: support for floating-point gauges */
-    statsd.recordHistogram("qux", 15)     /* Datadog extension: histograms */
-    statsd.recordHistogram("qux", 15.5)   /* ...also floating-point */
+    statsd.recordHistogramValue("qux", 15);    /* Datadog extension: histograms */
+    statsd.recordHistogramValue("qux", 15.5);  /* ...also floating-point */
 
     /* expects times in milliseconds
      */
