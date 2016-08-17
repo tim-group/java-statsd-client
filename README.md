@@ -1,3 +1,8 @@
+# Project Moved
+
+This project has merged with [datadog/java-dogstatsd-client](http://github.com/datadog/java-dogstatsd-client). This repository primarily exists for historical purposes. Please file issues and pull requests at [datadog/java-dogstatsd-client](http://github.com/datadog/java-dogstatsd-client).  
+
+
 java-dogstatsd-client
 ==================
 
