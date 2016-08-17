@@ -1,0 +1,1 @@
+This project has merged with datadog/java-dogstatsd-client and now lives in a new home at: http://datadog/java-dogstatsd-client. This repository primarily exists for historical purposes. Please file new issues and pull requests at datadog/java-dogstatsd-client.
