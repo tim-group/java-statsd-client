@@ -1,17 +1,17 @@
 package com.timgroup.statsd;
 
 import java.nio.charset.Charset;
-import java.text.NumberFormat;
-import java.util.Locale;
+
+import static com.timgroup.statsd.MessageUtil.*;
 
 /**
  * A simple StatsD client implementation facilitating metrics recording.
- * 
+ *
  * <p>Upon instantiation, this client will establish a socket connection to a StatsD instance
  * running on the specified host and port. Metrics are then sent over this connection as they are
  * received by the client.
  * </p>
- * 
+ *
  * <p>Three key methods are provided for the submission of data-points for the application under
  * scrutiny:
  * <ul>
@@ -23,10 +23,10 @@ import java.util.Locale;
  * IO operations being carried out in a separate thread. Furthermore, these methods are guaranteed
  * not to throw an exception which may disrupt application execution.
  * </p>
- * 
+ *
  * <p>As part of a clean system shutdown, the {@link #stop()} method should be invoked
  * on any StatsD clients.</p>
- * 
+ *
  * @author Tom Denley
  *
  */
@@ -50,7 +50,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      * be established. Once a client has been instantiated in this way, all
      * exceptions thrown during subsequent usage are consumed, guaranteeing
      * that failures in metrics will not affect normal code execution.
-     * 
+     *
      * @param prefix
      *     the prefix to apply to keys sent via this client (can be null or empty for no prefix)
      * @param hostname
@@ -74,7 +74,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      * exceptions thrown during subsequent usage are passed to the specified
      * handler and then consumed, guaranteeing that failures in metrics will
      * not affect normal code execution.
-     * 
+     *
      * @param prefix
      *     the prefix to apply to keys sent via this client (can be null or empty for no prefix)
      * @param hostname
@@ -96,6 +96,10 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         }
     }
 
+    String getPrefix() {
+        return prefix;
+    }
+
     /**
      * Cleanly shut down this StatsD client. This method may throw an exception if
      * the socket cannot be closed.
@@ -107,9 +111,9 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
 
     /**
      * Adjusts the specified counter by a given delta.
-     * 
+     *
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
+     *
      * @param aspect
      *     the name of the counter to adjust
      * @param delta
@@ -120,14 +124,14 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void count(String aspect, long delta, double sampleRate) {
-        send(messageFor(aspect, Long.toString(delta), "c", sampleRate));
+        send(makeCountMessage(prefix, aspect, delta, sampleRate));
     }
 
     /**
      * Records the latest fixed value for the specified named gauge.
-     * 
+     *
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
+     *
      * @param aspect
      *     the name of the gauge
      * @param value
@@ -154,20 +158,15 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     }
 
     private void recordGaugeCommon(String aspect, String value, boolean negative, boolean delta) {
-        final StringBuilder message = new StringBuilder();
-        if (!delta && negative) {
-            message.append(messageFor(aspect, "0", "g")).append('\n');
-        }
-        message.append(messageFor(aspect, (delta && !negative) ? ("+" + value) : value, "g"));
-        send(message.toString());
+        send(makeGaugeMessage(prefix, aspect, value, negative, delta));
     }
 
     /**
      * StatsD supports counting unique occurrences of events between flushes, Call this method to records an occurrence
      * of the specified named event.
-     * 
+     *
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
+     *
      * @param aspect
      *     the name of the set
      * @param eventName
@@ -175,14 +174,14 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordSetEvent(String aspect, String eventName) {
-        send(messageFor(aspect, eventName, "s"));
+        send(makeRecordSetEventMessage(prefix, aspect, eventName));
     }
 
     /**
      * Records an execution time in milliseconds for the specified named operation.
-     * 
+     *
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
+     *
      * @param aspect
      *     the name of the timed operation
      * @param timeInMs
@@ -190,28 +189,15 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      */
     @Override
     public void recordExecutionTime(String aspect, long timeInMs, double sampleRate) {
-        send(messageFor(aspect, Long.toString(timeInMs), "ms", sampleRate));
+        send(makeRecordExecutionTimeMessage(prefix, aspect, timeInMs, sampleRate));
     }
 
-    private String messageFor(String aspect, String value, String type) {
-        return messageFor(aspect, value, type, 1.0);
+    public Pipeline pipeline() {
+        return new NonBlockingPipeline(this);
     }
 
-    private String messageFor(String aspect, String value, String type, double sampleRate) {
-        final String message = prefix + aspect + ':' + value + '|' + type;
-        return (sampleRate == 1.0)
-                ? message
-                : (message + "|@" + stringValueOf(sampleRate));
-    }
-
-    private void send(final String message) {
+    void send(final String message) {
         sender.send(message);
     }
 
-    private String stringValueOf(double value) {
-        NumberFormat formatter = NumberFormat.getInstance(Locale.US);
-        formatter.setGroupingUsed(false);
-        formatter.setMaximumFractionDigits(19);
-        return formatter.format(value);
-    }
 }

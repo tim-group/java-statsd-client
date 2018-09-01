@@ -84,4 +84,5 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
     public void recordExecutionTimeToNow(String aspect, long systemTimeMillisAtStart) {
         time(aspect, Math.max(0, System.currentTimeMillis() - systemTimeMillisAtStart));
     }
+
 }

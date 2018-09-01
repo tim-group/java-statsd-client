@@ -16,4 +16,5 @@ public final class NoOpStatsDClient extends ConvenienceMethodProvidingStatsDClie
     @Override public void recordGaugeDelta(String aspect, double delta) { }
     @Override public void recordSetEvent(String aspect, String value) { }
     @Override public void recordExecutionTime(String aspect, long timeInMs, double sampleRate) { }
+    @Override public Pipeline pipeline() {return new NoOpPipeline();}
 }
