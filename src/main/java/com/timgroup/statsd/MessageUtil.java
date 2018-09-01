@@ -43,6 +43,6 @@ public class MessageUtil {
     }
 
     static String makeRecordExecutionTimeMessage(String prefix, String aspect, long timeInMs, double sampleRate) {
-        return messageFor(prefix, aspect, Long.toString(timeInMs), "ms", sampleRate)
+        return messageFor(prefix, aspect, Long.toString(timeInMs), "ms", sampleRate);
     }
 }

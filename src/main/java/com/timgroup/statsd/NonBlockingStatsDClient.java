@@ -192,6 +192,10 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         send(makeRecordExecutionTimeMessage(prefix, aspect, timeInMs, sampleRate));
     }
 
+    public Pipeline pipeline() {
+        return new NonBlockingPipeline(this);
+    }
+
     void send(final String message) {
         sender.send(message);
     }

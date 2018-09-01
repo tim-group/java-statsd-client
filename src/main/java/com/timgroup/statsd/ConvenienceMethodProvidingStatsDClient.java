@@ -85,9 +85,4 @@ public abstract class ConvenienceMethodProvidingStatsDClient implements StatsDCl
         time(aspect, Math.max(0, System.currentTimeMillis() - systemTimeMillisAtStart));
     }
 
-    @Override
-    public Pipeline pipeline() {
-        return new Pipeline(this);
-    }
-
 }
