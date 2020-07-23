@@ -2,6 +2,8 @@ package com.timgroup.statsd;
 
 import java.nio.charset.Charset;
 import java.text.NumberFormat;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -33,6 +35,7 @@ import java.util.Locale;
 public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingStatsDClient {
 
     private static final Charset STATS_D_ENCODING = Charset.forName("UTF-8");
+    private static final String STATS_D_TAG_PREFIX = "|#";
 
     private static final StatsDClientErrorHandler NO_OP_HANDLER = new StatsDClientErrorHandler() {
         @Override public void handle(Exception e) { /* No-op */ }
@@ -40,6 +43,8 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
 
     private final String prefix;
     private final NonBlockingUdpSender sender;
+    
+    private String clientTags = "";
 
     /**
      * Create a new StatsD client communicating with a StatsD instance on the
@@ -122,6 +127,25 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     public void count(String aspect, long delta, double sampleRate) {
         send(messageFor(aspect, Long.toString(delta), "c", sampleRate));
     }
+    
+    /**
+     * Adjusts the specified counter by a given delta.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * @param aspect
+     *     the name of the counter to adjust
+     * @param delta
+     *     the amount to adjust the counter by
+     * @param sampleRate
+     *     the sampling rate being employed. For example, a rate of 0.1 would tell StatsD that this counter is being sent
+     *     sampled every 1/10th of the time.
+     * @param tags
+     *     A string array containing one or more tags. Each tag can be in the format of key:value, e.g. key1:value1. Or it can be just a key, e.g. key3.
+     */
+    public void count(String aspect, long delta, double sampleRate, String[] tags) {
+        send(messageFor(aspect, Long.toString(delta), "c", sampleRate, tags));
+    }
 
     /**
      * Records the latest fixed value for the specified named gauge.
@@ -152,6 +176,22 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     public void recordGaugeDelta(String aspect, double value) {
         recordGaugeCommon(aspect, stringValueOf(value), value < 0, true);
     }
+    
+    public void recordGaugeValue(String aspect, long value, String[] tags) {
+        recordGaugeCommon(aspect, Long.toString(value), value < 0, false, tags);
+    }
+
+    public void recordGaugeValue(String aspect, double value, String[] tags) {
+        recordGaugeCommon(aspect, stringValueOf(value), value < 0, false, tags);
+    }
+
+    public void recordGaugeDelta(String aspect, long value, String[] tags) {
+        recordGaugeCommon(aspect, Long.toString(value), value < 0, true, tags);
+    }
+
+    public void recordGaugeDelta(String aspect, double value, String[] tags) {
+        recordGaugeCommon(aspect, stringValueOf(value), value < 0, true, tags);
+    }
 
     private void recordGaugeCommon(String aspect, String value, boolean negative, boolean delta) {
         final StringBuilder message = new StringBuilder();
@@ -159,6 +199,15 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
             message.append(messageFor(aspect, "0", "g")).append('\n');
         }
         message.append(messageFor(aspect, (delta && !negative) ? ("+" + value) : value, "g"));
+        send(message.toString());
+    }
+    
+    private void recordGaugeCommon(String aspect, String value, boolean negative, boolean delta, String[] tags) {
+        final StringBuilder message = new StringBuilder();
+        if (!delta && negative) {
+            message.append(messageFor(aspect, "0", "g", 1.0, tags)).append('\n');
+        }
+        message.append(messageFor(aspect, (delta && !negative) ? ("+" + value) : value, "g", 1.0, tags));
         send(message.toString());
     }
 
@@ -177,6 +226,10 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     public void recordSetEvent(String aspect, String eventName) {
         send(messageFor(aspect, eventName, "s"));
     }
+    
+    public void recordSetEvent(String aspect, String eventName, String[] tags) {
+        send(messageFor(aspect, eventName, "s", 1.0, tags));
+    }
 
     /**
      * Records an execution time in milliseconds for the specified named operation.
@@ -192,18 +245,37 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     public void recordExecutionTime(String aspect, long timeInMs, double sampleRate) {
         send(messageFor(aspect, Long.toString(timeInMs), "ms", sampleRate));
     }
+    
+    public void recordExecutionTime(String aspect, long timeInMs, double sampleRate, String[] tags) {
+        send(messageFor(aspect, Long.toString(timeInMs), "ms", sampleRate, tags));
+    }
+    
+    /**
+     * Set tags at the client level. These tags will be added to all metrics.
+     * 
+     * @param tags
+     *     A string array containing one or more tags. Each tag can be in the format of key:value, e.g. key1:value1. Or it can be just a key, e.g. key3.
+     */
+    public void setClientTags(String[] tags) {
+    	List<String> tagsList = Arrays.asList(tags);
+    	clientTags += String.join(",", tagsList);
+    }
 
     private String messageFor(String aspect, String value, String type) {
         return messageFor(aspect, value, type, 1.0);
     }
-
+    
     private String messageFor(String aspect, String value, String type, double sampleRate) {
-        final String message = prefix + aspect + ':' + value + '|' + type;
-        return (sampleRate == 1.0)
-                ? message
-                : (message + "|@" + stringValueOf(sampleRate));
+    	return messageFor(aspect, value, type, sampleRate, null);
     }
 
+    private String messageFor(String aspect, String value, String type, double sampleRate, String[] tags) {
+        final String message = prefix + aspect + ':' + value + '|' + type;
+        return addTags(tags, (sampleRate == 1.0)
+                ? message
+                : (message + "|@" + stringValueOf(sampleRate)));
+    }
+    
     private void send(final String message) {
         sender.send(message);
     }
@@ -213,5 +285,19 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         formatter.setGroupingUsed(false);
         formatter.setMaximumFractionDigits(19);
         return formatter.format(value);
+    }
+    
+    private String addTags(final String[] tags, String message) {
+    	if(tags == null && clientTags.isEmpty()) return message;
+    	StringBuilder sb = new StringBuilder(message);
+    	sb.append(STATS_D_TAG_PREFIX);
+    	if(!clientTags.isEmpty()) {
+    		sb.append(clientTags);
+    		if(tags != null) {
+    			sb.append(",");
+    		}
+    	}
+    	sb.append(String.join(",",Arrays.asList(tags)));
+        return sb.toString();
     }
 }

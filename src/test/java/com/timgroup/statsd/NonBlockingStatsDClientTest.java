@@ -97,7 +97,7 @@ public final class NonBlockingStatsDClientTest {
     }
 
     @Test(timeout=5000L) public void
-    sends_negagive_gauge_to_statsd_by_resetting_to_zero_first() throws Exception {
+    sends_negative_gauge_to_statsd_by_resetting_to_zero_first() throws Exception {
         client.recordGaugeValue("mygauge", -423L);
         server.waitForMessage();
 
@@ -177,6 +177,39 @@ public final class NonBlockingStatsDClientTest {
         server.waitForMessage();
 
         assertThat(server.messagesReceived(), contains("my.prefix.mytime:0|ms"));
+    }
+    
+    @Test(timeout=5000L) public void
+    sends_tagged_counter_value_with_rate_to_statsd() throws Exception {
+    	client.setClientTags(new String[]{"key1:value1", "key2:value2", "key3"});
+        client.count("mycount", Long.MAX_VALUE, 0.00024, new String[]{"key4:value4", "key5:value5", "key6"});
+        server.waitForMessage();
+        
+        assertThat(server.messagesReceived(), contains("my.prefix.mycount:9223372036854775807|c|@0.00024|#key1:value1,key2:value2,key3,key4:value4,key5:value5,key6"));
+    }
+    
+    @Test(timeout=5000L) public void
+    sends_tagged_negative_gauge_to_statsd_by_resetting_to_zero_first() throws Exception {
+    	client.recordGaugeValue("mygauge", -423L, new String[]{"key1:value1", "key2:value2", "key3"});
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mygauge:0|g|#key1:value1,key2:value2,key3\nmy.prefix.mygauge:-423|g|#key1:value1,key2:value2,key3"));
+    }
+    
+    @Test(timeout=5000L) public void
+    sends_tagged_set_to_statsd() throws Exception {
+        client.recordSetEvent("myset", "test", new String[]{"key1:value1", "key2:value2", "key3"});
+        server.waitForMessage();
+        
+        assertThat(server.messagesReceived(), contains("my.prefix.myset:test|s|#key1:value1,key2:value2,key3"));
+    }
+    
+    @Test(timeout=5000L) public void
+    sends_tagged_timer_with_rate_to_statsd() throws Exception {
+        client.recordExecutionTime("mytime", 123L, 0.000123, new String[]{"key1:value1", "key2:value2", "key3"});
+        server.waitForMessage();
+
+        assertThat(server.messagesReceived(), contains("my.prefix.mytime:123|ms|@0.000123|#key1:value1,key2:value2,key3"));
     }
 
     @Test(timeout=5000L) public void
