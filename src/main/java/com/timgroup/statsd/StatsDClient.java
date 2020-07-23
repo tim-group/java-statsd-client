@@ -50,6 +50,23 @@ public interface StatsDClient {
      *     sampled every 1/10th of the time.
      */
     void count(String aspect, long delta, double sampleRate);
+    
+    /**
+     * Adjusts the specified counter by a given delta.
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the counter to adjust
+     * @param delta
+     *     the amount to adjust the counter by
+     * @param sampleRate
+     *     the sampling rate being employed. For example, a rate of 0.1 would tell StatsD that this counter is being sent
+     *     sampled every 1/10th of the time.
+     * @param tags
+     *     A string array containing one or more tags. Each tag can be in the format of key:value, e.g. key1:value1. Or it can be just a key, e.g. key3.
+     */
+    void count(String aspect, long delta, double sampleRate, String[] tags);
 
     /**
      * Increments the specified counter by one.
@@ -116,7 +133,45 @@ public interface StatsDClient {
     void recordGaugeDelta(String aspect, double delta);
 
     /**
-     * Convenience method equivalent to {@link #recordGaugeValue(String, long)}.
+     * Records the latest fixed value for the specified named gauge.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * @param aspect
+     *     the name of the gauge
+     * @param value
+     *     the new reading of the gauge
+     * @param tags
+     *     A string array containing one or more tags. Each tag can be in the format of key:value, e.g. key1:value1. Or it can be just a key, e.g. key3.
+     */
+    void recordGaugeValue(String aspect, long value, String[] tags);
+
+    /**
+     * Convenience method equivalent to {@link #recordGaugeValue(String, long, String[])} but for double values.
+     */
+    void recordGaugeValue(String aspect, double value, String[] tags);
+
+    /**
+     * Records a change in the value of the specified named gauge.
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the gauge
+     * @param delta
+     *     the +/- delta to apply to the gauge
+     * @param tags
+     *     A string array containing one or more tags. Each tag can be in the format of key:value, e.g. key1:value1. Or it can be just a key, e.g. key3.
+     */
+    void recordGaugeDelta(String aspect, long delta, String[] tags);
+
+    /**
+     * Convenience method equivalent to {@link #recordGaugeDelta(String, long, String[])} but for double deltas.
+     */
+    void recordGaugeDelta(String aspect, double delta, String[] tags);
+    
+    /**
+     * Convenience method equivalent to {@link #recordGaugeValue(String, long, String[])}.
      */
     void gauge(String aspect, long value);
 
@@ -137,6 +192,21 @@ public interface StatsDClient {
      *     the value to be added to the set
      */
     void recordSetEvent(String aspect, String eventName);
+    
+    /**
+     * StatsD supports counting unique occurrences of events between flushes, Call this method to records an occurrence
+     * of the specified named event.
+     * 
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     * 
+     * @param aspect
+     *     the name of the set
+     * @param eventName
+     *     the value to be added to the set
+     * @param tags
+     *     A string array containing one or more tags. Each tag can be in the format of key:value, e.g. key1:value1. Or it can be just a key, e.g. key3.
+     */
+    void recordSetEvent(String aspect, String eventName, String[] tags);
 
     /**
      * Convenience method equivalent to {@link #recordSetEvent(String, String)}.
@@ -169,6 +239,23 @@ public interface StatsDClient {
      *     sampled every 1/10th of the time, so that it updates its timer_counters appropriately.
      */
     void recordExecutionTime(String aspect, long timeInMs, double sampleRate);
+    
+    /**
+     * Adjusts the specified counter by a given delta.
+     *
+     * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
+     *
+     * @param aspect
+     *     the name of the counter to adjust
+     * @param delta
+     *     the amount to adjust the counter by
+     * @param sampleRate
+     *     the sampling rate being employed. For example, a rate of 0.1 would tell StatsD that this timer is being sent
+     *     sampled every 1/10th of the time, so that it updates its timer_counters appropriately.
+     * @param tags
+     *     A string array containing one or more tags. Each tag can be in the format of key:value, e.g. key1:value1. Or it can be just a key, e.g. key3.
+     */
+    void recordExecutionTime(String aspect, long timeInMs, double sampleRate, String[] tags);
 
     /**
      * Records an execution time in milliseconds for the specified named operation. The execution
@@ -188,5 +275,13 @@ public interface StatsDClient {
      * Convenience method equivalent to {@link #recordExecutionTime(String, long)}.
      */
     void time(String aspect, long value);
+    
+    /**
+     * Set tags at the client level. These tags will be added to all metrics.
+     * 
+     * @param tags
+     *     A string array containing one or more tags. Each tag can be in the format of key:value, e.g. key1:value1. Or it can be just a key, e.g. key3.
+     */
+    void setClientTags(String[] tags);
 
 }
