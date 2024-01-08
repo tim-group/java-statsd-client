@@ -6,12 +6,12 @@ import java.util.Locale;
 
 /**
  * A simple StatsD client implementation facilitating metrics recording.
- * 
+ *
  * <p>Upon instantiation, this client will establish a socket connection to a StatsD instance
  * running on the specified host and port. Metrics are then sent over this connection as they are
  * received by the client.
  * </p>
- * 
+ *
  * <p>Three key methods are provided for the submission of data-points for the application under
  * scrutiny:
  * <ul>
@@ -23,10 +23,10 @@ import java.util.Locale;
  * IO operations being carried out in a separate thread. Furthermore, these methods are guaranteed
  * not to throw an exception which may disrupt application execution.
  * </p>
- * 
+ *
  * <p>As part of a clean system shutdown, the {@link #stop()} method should be invoked
  * on any StatsD clients.</p>
- * 
+ *
  * @author Tom Denley
  *
  */
@@ -50,7 +50,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      * be established. Once a client has been instantiated in this way, all
      * exceptions thrown during subsequent usage are consumed, guaranteeing
      * that failures in metrics will not affect normal code execution.
-     * 
+     *
      * @param prefix
      *     the prefix to apply to keys sent via this client (can be null or empty for no prefix)
      * @param hostname
@@ -74,7 +74,7 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
      * exceptions thrown during subsequent usage are passed to the specified
      * handler and then consumed, guaranteeing that failures in metrics will
      * not affect normal code execution.
-     * 
+     *
      * @param prefix
      *     the prefix to apply to keys sent via this client (can be null or empty for no prefix)
      * @param hostname
@@ -96,6 +96,17 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
         }
     }
 
+    public NonBlockingStatsDClient(String prefix, String hostname, String threadPreffix,
+                                   int port, StatsDClientErrorHandler errorHandler) throws StatsDClientException {
+        this.prefix = (prefix == null || prefix.trim().isEmpty()) ? "" : (prefix.trim() + ".");
+
+        try {
+            this.sender = new NonBlockingUdpSender(hostname, threadPreffix, port, STATS_D_ENCODING, errorHandler);
+        } catch (Exception e) {
+            throw new StatsDClientException("Failed to start StatsD client", e);
+        }
+    }
+
     /**
      * Cleanly shut down this StatsD client. This method may throw an exception if
      * the socket cannot be closed.
@@ -107,9 +118,9 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
 
     /**
      * Adjusts the specified counter by a given delta.
-     * 
+     *
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
+     *
      * @param aspect
      *     the name of the counter to adjust
      * @param delta
@@ -125,9 +136,9 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
 
     /**
      * Records the latest fixed value for the specified named gauge.
-     * 
+     *
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
+     *
      * @param aspect
      *     the name of the gauge
      * @param value
@@ -165,9 +176,9 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
     /**
      * StatsD supports counting unique occurrences of events between flushes, Call this method to records an occurrence
      * of the specified named event.
-     * 
+     *
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
+     *
      * @param aspect
      *     the name of the set
      * @param eventName
@@ -180,9 +191,9 @@ public final class NonBlockingStatsDClient extends ConvenienceMethodProvidingSta
 
     /**
      * Records an execution time in milliseconds for the specified named operation.
-     * 
+     *
      * <p>This method is non-blocking and is guaranteed not to throw an exception.</p>
-     * 
+     *
      * @param aspect
      *     the name of the timed operation
      * @param timeInMs
